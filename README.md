@@ -189,3 +189,5 @@ If you encounter any issues or have questions:
 3. Look at the example review file for formatting reference
 
 Happy reviewing! 🎮
+
+Support me on: [Buy Me A Coffee](https://coff.ee/mikaturkia). 
