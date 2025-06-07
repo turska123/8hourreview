@@ -39,25 +39,29 @@
           <p class="mt-2 text-sm">Honest reviews after exactly 8 hours of gameplay.</p>
         </div>
       </div>
-      <a
-  href="https://dashboard.simpleanalytics.com/?utm_source=&utm_content=badge&affiliate=tebup"
-  referrerpolicy="origin"
-  class="absolute bottom-0 left-0"
-  target="_blank">
-  <picture>
-    <source
-      srcset="https://simpleanalyticsbadges.com/?mode=dark"
-      media="(prefers-color-scheme: dark)"
-    />
-    <img
-      src="https://simpleanalyticsbadges.com/?mode=light"
-      alt="Simple Analytics Badge"
-      loading="lazy"
-      referrerpolicy="no-referrer"
-      crossorigin="anonymous"
-    />
-  </picture>
-</a>
+      <div class="flex">
+  <a
+    href="https://dashboard.simpleanalytics.com/?utm_source=&utm_content=badge&affiliate=tebup"
+    referrerpolicy="origin"
+    class="md:absolute bottom-0 left-0"
+    target="_blank">
+    <picture>
+      <source
+        srcset="https://simpleanalyticsbadges.com/?mode=dark"
+        media="(prefers-color-scheme: dark)"
+      />
+      <img
+        src="https://simpleanalyticsbadges.com/?mode=light"
+        alt="Simple Analytics Badge"
+        loading="lazy"
+        referrerpolicy="no-referrer"
+        crossorigin="anonymous"
+      />
+    </picture>
+  </a>
+  <a href="https://www.buymeacoffee.com/mikaturkia" class="md:absolute bottom-0 right-0"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=mikaturkia&button_colour=111827&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00" /></a>
+      </div>
+     
     </footer>
   </div>
 </template>
