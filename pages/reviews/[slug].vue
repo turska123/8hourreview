@@ -113,6 +113,8 @@
 
 <script setup>
 import { format } from 'date-fns'
+import { useHead } from 'nuxt/app'
+import { useRoute } from 'vue-router'
 
 const route = useRoute()
 const { data } = await useAsyncData(`review-${route.params.slug}`, () => {
@@ -123,13 +125,22 @@ const formatDate = (date) => {
   return format(new Date(date), 'MMMM dd, yyyy')
 }
 
-useHead(() => ({
-  title: data.value ? `${data.value.title} Review - 8 Hour Game Reviews` : 'Review Not Found',
-  meta: [
-    {
-      name: 'description',
-      content: data.value?.description || 'Game review not found'
-    }
-  ]
-}))
+useHead(() => {
+  if (!data.value) return {}
+  return {
+    title: `${data.value.title} - 8 Hour Game Reviews`,
+    meta: [
+      { name: 'description', content: data.value.description },
+      { property: 'og:title', content: data.value.title },
+      { property: 'og:description', content: data.value.description },
+      { property: 'og:type', content: 'article' },
+      { property: 'og:image', content: data.value.image },
+      { property: 'og:url', content: `https://8hourreview.com/reviews/${route.params.slug}` },
+      { name: 'twitter:card', content: 'summary_large_image' },
+      { name: 'twitter:title', content: data.value.title },
+      { name: 'twitter:description', content: data.value.description },
+      { name: 'twitter:image', content: data.value.image }
+    ]
+  }
+})
 </script>

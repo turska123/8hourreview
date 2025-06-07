@@ -104,6 +104,8 @@
 </template>
 
 <script setup>
+import { useHead } from 'nuxt/app'
+
 const { data, pending } = await useAsyncData('home-reviews', () => 
   queryContent('reviews')
     .sort({ date: -1 })
@@ -112,6 +114,18 @@ const { data, pending } = await useAsyncData('home-reviews', () =>
 )
 
 useHead({
-  title: '8 Hour Game Reviews - Honest Gaming Reviews'
+  title: '8 Hour Game Reviews - Honest Gaming Reviews',
+  meta: [
+    { name: 'description', content: 'Honest, focused game reviews after exactly 8 hours of gameplay. Find reviews by genre, platform, and more.' },
+    { property: 'og:title', content: '8 Hour Game Reviews - Honest Gaming Reviews' },
+    { property: 'og:description', content: 'Honest, focused game reviews after exactly 8 hours of gameplay. Find reviews by genre, platform, and more.' },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:image', content: '/assets/8hourreview-removebg-preview.png' },
+    { property: 'og:url', content: 'https://8hourreview.com/' },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: '8 Hour Game Reviews - Honest Gaming Reviews' },
+    { name: 'twitter:description', content: 'Honest, focused game reviews after exactly 8 hours of gameplay. Find reviews by genre, platform, and more.' },
+    { name: 'twitter:image', content: '/assets/8hourreview-removebg-preview.png' }
+  ]
 })
 </script>

@@ -51,6 +51,7 @@
     />
     <img
       src="https://simpleanalyticsbadges.com/?mode=light"
+      alt="Simple Analytics Badge"
       loading="lazy"
       referrerpolicy="no-referrer"
       crossorigin="anonymous"
@@ -63,6 +64,9 @@
 
 <script setup>
 useHead({
+  htmlAttrs: {
+    lang: 'en'
+  },
   script: [
     {
       src: "https://scripts.simpleanalyticscdn.com/latest.js",

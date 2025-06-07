@@ -371,6 +371,9 @@ const resetForm = () => {
 }
 
 useHead({
-  title: 'Admin Panel - 8 Hour Game Reviews'
+  title: 'Admin Panel - 8 Hour Game Reviews',
+  meta: [
+    { name: 'robots', content: 'noindex, nofollow' }
+  ]
 })
 </script>
