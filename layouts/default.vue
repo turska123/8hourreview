@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen flex flex-col">
     <!-- Header -->
     <header class="bg-white dark:bg-gray-800 shadow-sm">
       <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,18 +27,36 @@
     </header>
 
     <!-- Main Content -->
-    <main>
+    <main class="flex-1">
       <slot />
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-100 dark:bg-gray-800 mt-12">
+    <footer class="bg-gray-100 dark:bg-gray-800 mt-12 relative">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="text-center text-gray-600 dark:text-gray-400">
           <p>&copy; 2024 8 Hour Game Reviews. All rights reserved.</p>
           <p class="mt-2 text-sm">Honest reviews after exactly 8 hours of gameplay.</p>
         </div>
       </div>
+      <a
+  href="https://dashboard.simpleanalytics.com/?utm_source=&utm_content=badge&affiliate=tebup"
+  referrerpolicy="origin"
+  class="absolute bottom-0 left-0"
+  target="_blank">
+  <picture>
+    <source
+      srcset="https://simpleanalyticsbadges.com/?mode=dark"
+      media="(prefers-color-scheme: dark)"
+    />
+    <img
+      src="https://simpleanalyticsbadges.com/?mode=light"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+      crossorigin="anonymous"
+    />
+  </picture>
+</a>
     </footer>
   </div>
 </template>
