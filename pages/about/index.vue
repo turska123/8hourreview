@@ -11,7 +11,7 @@
       <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">
         If you enjoy my work and want to support me, you can buy me a beer or coffee! Your support helps me continue creating content and maintaining this site. Every little bit helps, and I truly appreciate it:
       </p>
-      <a href="https://coff.ee/mikaturkia" target="_blank" rel="noopener" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded shadow transition mb-6">
+      <a href="https://www.buymeacoffee.com/mikaturkia" target="_blank" rel="noopener" class="inline-block bg-yellow-400 hover:bg-yellow-500 text-black font-semibold px-6 py-3 rounded shadow transition mb-6">
         ☕ Support me on Buy Me a Coffee
       </a>
       <div class="mt-8">
