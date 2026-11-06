@@ -47,6 +47,11 @@ npm run generate
 npm run build
 ```
 
+### 5. Deploy
+
+Every push to `main` on GitLab builds the static site and publishes it with GitLab Pages
+(see [.gitlab-ci.yml](.gitlab-ci.yml)).
+
 ## Project Structure
 
 ```

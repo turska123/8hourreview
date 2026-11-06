@@ -1,0 +1,18 @@
+# Builds the site as static files and publishes it with GitLab Pages on every push to main.
+# GitLab Pages serves the "public" artifact of the job named "pages". Nuxt already copies the
+# repo's public/ folder (favicon, robots.txt) into .output/public, so replacing it here is safe.
+
+pages:
+  image: node:24-slim
+  cache:
+    key:
+      files: [package-lock.json]
+    paths: [.npm/]
+  script:
+    - npm ci --cache .npm --prefer-offline --no-audit --no-fund
+    - npx nuxt generate
+    - rm -rf public && cp -r .output/public public
+  artifacts:
+    paths: [public]
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
