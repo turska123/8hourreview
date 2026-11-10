@@ -32,7 +32,12 @@
                     {{ data.score }}/10
                   </span>
                   <div class="flex">
-                    <Star v-for="i in 5" :key="i" :filled="i <= Math.round(data.score / 2)" class="w-6 h-6" />
+                    <StarIcon
+                      v-for="i in 5"
+                      :key="i"
+                      :filled="i <= Math.round(data.score / 2)"
+                      class="w-6 h-6"
+                    />
                   </div>
                 </div>
 

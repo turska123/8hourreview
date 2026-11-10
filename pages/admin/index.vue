@@ -8,7 +8,7 @@
         </div>
 
         <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8">
-          <form @submit.prevent="generateReview" class="space-y-6">
+          <form class="space-y-6" @submit.prevent="generateReview">
             <!-- Basic Info -->
             <div class="grid md:grid-cols-2 gap-6">
               <div>
@@ -81,13 +81,13 @@
                   v-for="genre in availableGenres"
                   :key="genre"
                   type="button"
-                  @click="toggleGenre(genre)"
                   :class="[
                     'px-3 py-1 text-sm rounded-full transition-colors',
                     form.genres.includes(genre)
                       ? 'bg-indigo-600 text-white'
                       : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600',
                   ]"
+                  @click="toggleGenre(genre)"
                 >
                   {{ genre }}
                 </button>
@@ -118,16 +118,16 @@
                     />
                     <button
                       type="button"
-                      @click="form.pros.splice(index, 1)"
                       class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded"
+                      @click="form.pros.splice(index, 1)"
                     >
                       ×
                     </button>
                   </div>
                   <button
                     type="button"
-                    @click="form.pros.push('')"
                     class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
+                    @click="form.pros.push('')"
                   >
                     + Add Pro
                   </button>
@@ -146,16 +146,16 @@
                     />
                     <button
                       type="button"
-                      @click="form.cons.splice(index, 1)"
                       class="px-3 py-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900 rounded"
+                      @click="form.cons.splice(index, 1)"
                     >
                       ×
                     </button>
                   </div>
                   <button
                     type="button"
-                    @click="form.cons.push('')"
                     class="text-sm text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
+                    @click="form.cons.push('')"
                   >
                     + Add Con
                   </button>
@@ -202,8 +202,8 @@ Final thoughts after 8 hours..."
             <div class="flex justify-between items-center pt-6 border-t">
               <button
                 type="button"
-                @click="resetForm"
                 class="px-6 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200"
+                @click="resetForm"
               >
                 Reset Form
               </button>
@@ -225,8 +225,8 @@ Final thoughts after 8 hours..."
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-xl font-semibold">Generated Review File</h2>
             <button
-              @click="copyToClipboard"
               class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
+              @click="copyToClipboard"
             >
               Copy to Clipboard
             </button>
@@ -329,14 +329,9 @@ const generateReview = () => {
     bottomLine: form.bottomLine || undefined,
   };
 
-  // Remove undefined values
-  Object.keys(frontmatter).forEach((key) => {
-    if (frontmatter[key] === undefined) {
-      delete frontmatter[key];
-    }
-  });
-
+  // Fields left empty (undefined) are left out of the file.
   const yamlFrontmatter = Object.entries(frontmatter)
+    .filter(([, value]) => value !== undefined)
     .map(([key, value]) => {
       if (Array.isArray(value)) {
         return `${key}:\n${value.map((item) => `  - "${item}"`).join("\n")}`;

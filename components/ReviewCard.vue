@@ -11,7 +11,7 @@
         <div class="flex items-center space-x-2">
           <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400"> {{ review.score }}/10 </span>
           <div class="flex">
-            <Star v-for="i in 5" :key="i" :filled="i <= Math.round(review.score / 2)" class="w-4 h-4" />
+            <StarIcon v-for="i in 5" :key="i" :filled="i <= Math.round(review.score / 2)" class="w-4 h-4" />
           </div>
         </div>
         <span class="text-sm text-gray-500 dark:text-gray-400">
