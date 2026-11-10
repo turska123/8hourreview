@@ -14,7 +14,7 @@ pros:
   - "Strong and memorable opening hours"
 cons:
   - "Combat feels clunky early on"
-  - "Iacks deep combat strategy outside of parrying/dodging"
+  - "Lacks deep combat strategy outside of parrying/dodging"
 bottomLine: "A visually striking and emotionally engaging adventure that grabs your attention early—and doesn’t let go."
 ---
 
