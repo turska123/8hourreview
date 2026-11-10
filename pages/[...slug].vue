@@ -19,6 +19,10 @@
 </template>
 
 <script setup>
+// A 404 status while prerendering: then a broken internal link fails `nuxt generate` instead of being written out as
+// a "Page not found" page with status 200 (a soft 404). 404.html is still generated (it's a client-rendered shell).
+if (import.meta.server) setResponseStatus(useRequestEvent(), 404);
+
 useHead({
   title: "Page not found - 8 Hour Game Reviews",
   meta: [{ name: "robots", content: "noindex" }],

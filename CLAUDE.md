@@ -61,7 +61,9 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
   `useHead` meta. Share images (`og:image`, `twitter:image`) must be absolute `https://www.8hourreview.com/...` URLs to
   a file in `public/`; `site.spec.ts` checks it.
 - **404.html is a client-rendered shell.** Without `pages/[...slug].vue`, Nuxt's router throws "Page not found"
-  while starting and logs a console error. Keep the catch-all page.
+  while starting and logs a console error. Keep the catch-all page, and keep its `setResponseStatus(..., 404)`:
+  without it a broken internal link is generated as a "Page not found" page with status 200 instead of failing the
+  build (`site.spec.ts` checks no generated page is the not-found page).
 - **Nuxt builds aren't byte-reproducible** (chunk hashes, build id, cache timestamps). To prove a change is
   formatting-only, compare the generated HTML with those masked.
 - **Plain-JS `<script setup>`:** `nuxi typecheck` checks `.ts` files and `lang="ts"` blocks only (#7).
