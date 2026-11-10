@@ -81,6 +81,7 @@ Every push to `main` on GitLab builds the static site and publishes it with GitL
 ### Adding Reviews
 
 #### Method 1: Admin Panel (Recommended)
+
 1. Visit `/admin` on your site
 2. Fill out the form with all review details
 3. Write your review content in the large text area
@@ -88,6 +89,7 @@ Every push to `main` on GitLab builds the static site and publishes it with GitL
 5. Copy and save the generated content as a `.md` file in `content/reviews/`
 
 #### Method 2: Manual Creation
+
 Create a new `.md` file in `content/reviews/` with this structure:
 
 ```markdown
@@ -116,6 +118,7 @@ Your review content goes here in Markdown format...
 ### Review Content Guidelines
 
 Each review should include:
+
 - **First Impressions** - Initial thoughts when starting
 - **Gameplay** - Core mechanics, controls, feel
 - **Graphics and Sound** - Visual and audio quality
@@ -126,16 +129,19 @@ Each review should include:
 ## Customization
 
 ### Styling
+
 - Edit `assets/css/main.css` for global styles
 - Modify Tailwind classes in components for specific styling
 - Colors and themes can be adjusted in the CSS file
 
 ### Content Structure
+
 - Add new fields to the admin panel in `pages/admin/index.vue`
 - Modify the review display in `pages/reviews/[...slug].vue`
 - Update the review card component for different preview layouts
 
 ### SEO and Meta
+
 - Update site title and description in `nuxt.config.ts`
 - Modify meta tags in individual page components
 - Add structured data for better search engine visibility
@@ -143,16 +149,20 @@ Each review should include:
 ## Deployment
 
 ### Static Hosting (Recommended)
+
 ```bash
 npm run generate
 ```
+
 Deploy the `dist/` folder to:
+
 - Netlify
 - Vercel
 - GitHub Pages
 - Any static hosting service
 
 ### Server Deployment
+
 ```bash
 npm run build
 npm run preview
@@ -189,10 +199,11 @@ MIT License - feel free to use this for your own gaming review site!
 ## Support
 
 If you encounter any issues or have questions:
+
 1. Check the Nuxt.js documentation
 2. Review the @nuxt/content documentation
 3. Look at the example review file for formatting reference
 
 Happy reviewing! 🎮
 
-Support me on: [Buy Me A Coffee](https://coff.ee/mikaturkia). 
+Support me on: [Buy Me A Coffee](https://coff.ee/mikaturkia).

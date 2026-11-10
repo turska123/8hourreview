@@ -1,6 +1,5 @@
 ---
-
-title: "8-Hour Review: Claire Obscur: Expedition 33" 
+title: "8-Hour Review: Claire Obscur: Expedition 33"
 description: "A captivating and immersive game with stunning visuals and a gripping story"
 date: "2025-06-07"
 platform: "PC/Linux (Mint)"

@@ -11,10 +11,12 @@ const MIN_LEVEL = LEVELS.indexOf("moderate");
 
 function audit() {
   try {
-    return JSON.parse(execFileSync("npm", ["audit", "--json", ...process.argv.slice(2)], {
-      encoding: "utf8",
-      maxBuffer: 64 * 1024 * 1024,
-    }));
+    return JSON.parse(
+      execFileSync("npm", ["audit", "--json", ...process.argv.slice(2)], {
+        encoding: "utf8",
+        maxBuffer: 64 * 1024 * 1024,
+      }),
+    );
   } catch (err) {
     // npm audit exits 1 when it finds anything; the report is still on stdout.
     if (err.stdout) return JSON.parse(err.stdout);
