@@ -138,3 +138,36 @@ test('a missing page shows a "not found" page inside the site layout, with a lin
   await expect(main.getByRole("heading", { name: /not found/i }).first()).toBeVisible();
   await expect(main.locator('a[href="/reviews"], a[href="/reviews/"]').first()).toBeVisible();
 });
+
+/** The text of every <h1> in a page's <main> (the whole page if it has no <main>), tags stripped. */
+function mainHeadings(html: string): string[] {
+  const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? html;
+  return [...main.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map(([, inner]) =>
+    decodeEntities(inner.replace(/<[^>]*>/g, "")).trim(),
+  );
+}
+
+test("no generated page is the not-found page (a broken internal link must fail the build)", () => {
+  // Nuxt's crawler follows a mistyped link (e.g. /review) and writes the not-found page there: a soft 404 that
+  // the live site serves with status 200. Only the real 404.html and 200.html shells may be it.
+  const shells = new Set([join(OUTPUT, "404.html"), join(OUTPUT, "200.html")]);
+  const soft404s = htmlFiles()
+    .filter((file) => !shells.has(file))
+    .filter((file) => mainHeadings(readFileSync(file, "utf8")).some((h) => /not found/i.test(h)))
+    .map((file) => relative(OUTPUT, file).split(sep).join("/"));
+  expect(soft404s).toEqual([]);
+});
+
+test("the home page, the About page and every review page have an og:image and a twitter:image", () => {
+  const reviews = builtPages().filter((path) => /^\/reviews\/[^/]+\/$/.test(path));
+  expect(reviews.length, "no review pages were generated").toBeGreaterThan(0);
+  const missing: string[] = [];
+  for (const path of ["/", "/about/", ...reviews]) {
+    const metas = tags(readFileSync(pageFile(path), "utf8"), "meta");
+    for (const key of ["og:image", "twitter:image"]) {
+      const found = metas.some((meta) => (meta.property ?? meta.name) === key && (meta.content ?? "") !== "");
+      if (!found) missing.push(`page ${path} has no ${key}`);
+    }
+  }
+  expect(missing).toEqual([]);
+});
