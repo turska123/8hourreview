@@ -1,96 +1,51 @@
-# 8 Hour Game Reviews - Nuxt Website
+# 8 Hour Game Reviews
 
-A modern Nuxt.js website for publishing game reviews based on exactly 8 hours of gameplay, featuring an easy-to-use admin panel for content creation.
+Game reviews written after exactly 8 hours of play: <https://www.8hourreview.com>.
 
-## Features
+A static [Nuxt 3](https://nuxt.com) site. Reviews are Markdown files read by @nuxt/content, styled with Tailwind CSS,
+with search, genre filter and sorting on the review list, a light/dark toggle, and an `/admin` page that builds a new
+review's Markdown for you.
 
-- 🎮 **Game Review System** - Structured reviews with scores, pros/cons, and detailed content
-- 📝 **Easy Publishing** - Admin panel generates markdown files for easy content management
-- 🔍 **Search & Filter** - Find reviews by title, genre, or sort by various criteria
-- 🌙 **Dark Mode** - Built-in light/dark theme toggle
-- 📱 **Responsive Design** - Works great on all devices
-- ⚡ **Static Generation** - Fast loading with Nuxt's static site generation
-- 🎨 **Modern UI** - Clean, professional design with Tailwind CSS
+## Run it
 
-## Quick Start
-
-### 1. Install Dependencies
+Needs Node 24.
 
 ```bash
-npm install
+npm ci
+npm run dev        # http://localhost:3333
 ```
 
-### 2. Development Server
+## Check it
 
 ```bash
-npm run dev
+npx playwright install firefox   # once per machine
+tools/check.sh                   # or: npm run check
 ```
 
-Visit `http://localhost:3000` to see your site.
+It runs prettier, eslint, `nuxi typecheck`, `nuxt generate`, Playwright smoke tests in Firefox, `npm audit` and
+gitleaks, and must end with `ALL CLEAN`. The pre-push hook runs it too (`git config core.hooksPath .githooks` once per
+clone). Fix formatting with `npx prettier --write .`.
 
-### 3. Create Your First Review
+## Publish it
 
-1. Go to `/admin` in your browser
-2. Fill out the review form with game details
-3. Write your review content in Markdown
-4. Click "Generate Review File"
-5. Copy the generated content
-6. Save it as a `.md` file in the `content/reviews/` directory
+**Every push to `main` goes live.** GitLab mirrors `main` to GitHub (`turska123/8hourreview`), and Netlify builds
+www.8hourreview.com from there with `nuxt generate`.
 
-### 4. Build for Production
+- Reviews and other content (`content/`, `public/`) can be pushed straight to `main` once the check passes.
+- Code changes go through a merge request.
+- A copy of the site can also be built to GitLab Pages, but only by hand (a `publish-*` tag or Build > Pipelines >
+  Run pipeline). Nobody uses it yet.
 
-```bash
-# Generate static site
-npm run generate
+Build locally with `npm run generate`; the site lands in `.output/public/`.
 
-# Or build for server deployment
-npm run build
-```
+## Writing a review
 
-### 5. Deploy
+1. `npm run dev`, open <http://localhost:3333/admin> and fill in the form.
+2. Click "Generate Review File", copy the result and save it as `content/reviews/<slug>.md` (the slug is the URL:
+   `/reviews/<slug>`).
+3. Run `tools/check.sh`, commit (`content: review <game>`) and push to `main`.
 
-Every push to `main` on GitLab builds the static site and publishes it with GitLab Pages
-(see [.gitlab-ci.yml](.gitlab-ci.yml)).
-
-## Project Structure
-
-```
-├── components/
-│   ├── ColorModeButton.vue    # Dark/light mode toggle
-│   ├── ReviewCard.vue         # Review preview cards
-│   └── Star.vue              # Star rating component
-├── content/
-│   └── reviews/              # Your review markdown files go here
-│       └── sample-game.md    # Example review
-├── layouts/
-│   └── default.vue           # Main site layout
-├── pages/
-│   ├── index.vue             # Homepage
-│   ├── admin/
-│   │   └── index.vue         # Admin panel for creating reviews
-│   └── reviews/
-│       ├── index.vue         # Reviews listing page
-│       └── [...slug].vue     # Individual review pages
-├── assets/css/
-│   └── main.css              # Global styles
-└── nuxt.config.ts            # Nuxt configuration
-```
-
-## Content Management
-
-### Adding Reviews
-
-#### Method 1: Admin Panel (Recommended)
-
-1. Visit `/admin` on your site
-2. Fill out the form with all review details
-3. Write your review content in the large text area
-4. Click "Generate Review File"
-5. Copy and save the generated content as a `.md` file in `content/reviews/`
-
-#### Method 2: Manual Creation
-
-Create a new `.md` file in `content/reviews/` with this structure:
+Or write the file by hand:
 
 ```markdown
 ---
@@ -115,95 +70,41 @@ bottomLine: "Worth playing despite minor issues"
 Your review content goes here in Markdown format...
 ```
 
-### Review Content Guidelines
+Each review covers:
 
-Each review should include:
+- **First Impressions**: initial thoughts when starting
+- **Gameplay**: core mechanics, controls, feel
+- **Graphics and Sound**: visual and audio quality
+- **Story** (if any): narrative elements
+- **Technical Performance**: bugs, performance issues
+- **Conclusion**: final verdict after 8 hours
 
-- **First Impressions** - Initial thoughts when starting
-- **Gameplay** - Core mechanics, controls, feel
-- **Graphics and Sound** - Visual and audio quality
-- **Story** (if applicable) - Narrative elements
-- **Technical Performance** - Bugs, performance issues
-- **Conclusion** - Final verdict after 8 hours
+Tips for great reviews:
 
-## Customization
+1. **Be honest.** 8 hours is enough to form solid first impressions.
+2. **Focus on the early game.** Most players decide within the first few hours.
+3. **Include screenshots.** Visual elements make reviews more engaging.
+4. **Be specific.** Concrete examples beat vague statements.
+5. **Consider your audience.** Write for people deciding whether to buy or play.
 
-### Styling
+## Where things are
 
-- Edit `assets/css/main.css` for global styles
-- Modify Tailwind classes in components for specific styling
-- Colors and themes can be adjusted in the CSS file
+| Folder                | What                                                 |
+| --------------------- | ---------------------------------------------------- |
+| `content/reviews/`    | The reviews                                          |
+| `pages/`              | Home, review list and review page, about, admin, 404 |
+| `layouts/default.vue` | Header, footer, analytics, favicons                  |
+| `components/`         | Review card, star rating, colour-mode button         |
+| `assets/css/main.css` | Global styles                                        |
+| `public/`             | Files served as is: logo, favicons, robots.txt       |
+| `tests/smoke/`        | Playwright smoke tests                               |
+| `tools/`              | `check.sh` (the gate) and its helpers                |
 
-### Content Structure
-
-- Add new fields to the admin panel in `pages/admin/index.vue`
-- Modify the review display in `pages/reviews/[...slug].vue`
-- Update the review card component for different preview layouts
-
-### SEO and Meta
-
-- Update site title and description in `nuxt.config.ts`
-- Modify meta tags in individual page components
-- Add structured data for better search engine visibility
-
-## Deployment
-
-### Static Hosting (Recommended)
-
-```bash
-npm run generate
-```
-
-Deploy the `dist/` folder to:
-
-- Netlify
-- Vercel
-- GitHub Pages
-- Any static hosting service
-
-### Server Deployment
-
-```bash
-npm run build
-npm run preview
-```
-
-## Dependencies
-
-- **Nuxt 3** - The main framework
-- **@nuxt/content** - Content management and markdown processing
-- **@nuxtjs/tailwindcss** - Utility-first CSS framework
-- **@nuxtjs/color-mode** - Dark/light mode support
-- **date-fns** - Date formatting utilities
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+How the project is run (tests, issues, reviews) follows a shared way of working; notes for Claude are in
+[CLAUDE.md](CLAUDE.md).
 
 ## License
 
 MIT License - feel free to use this for your own gaming review site!
-
-## Tips for Great Reviews
-
-1. **Be Honest** - 8 hours is enough to form solid first impressions
-2. **Focus on Early Game** - Most players decide within the first few hours
-3. **Include Screenshots** - Visual elements make reviews more engaging
-4. **Be Specific** - Concrete examples are better than vague statements
-5. **Consider Your Audience** - Write for people deciding whether to buy/play
-
-## Support
-
-If you encounter any issues or have questions:
-
-1. Check the Nuxt.js documentation
-2. Review the @nuxt/content documentation
-3. Look at the example review file for formatting reference
-
-Happy reviewing! 🎮
 
 Support me on: [Buy Me A Coffee](https://coff.ee/mikaturkia).

@@ -7,7 +7,7 @@ import { builtPages, MISSING_PAGE } from "./pages";
 /**
  * Off-site URLs a page may load (a prefix each). Anything else is a privacy problem: sites self-host everything
  * (fonts too, never Google Fonts). Tests never touch the real network (standards §5): allowed requests get an empty
- * answer, the rest are aborted and reported. Whether these third-party images should stay is open (see CLAUDE.md).
+ * answer, the rest are aborted and reported. Whether these third-party images should stay is open (#3).
  */
 const OFFSITE_ALLOWED: string[] = [
   // Simple Analytics: cookieless page-view counter, plus its badge in the footer.
