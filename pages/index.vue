@@ -152,8 +152,8 @@ useHead({
         "Honest, focused game reviews after exactly 8 hours of gameplay. Find reviews by genre, platform, and more.",
     },
     { property: "og:type", content: "website" },
-    { property: "og:image", content: "/assets/8hourreview-removebg-preview.png" },
-    { property: "og:url", content: "https://8hourreview.com/" },
+    { property: "og:image", content: "https://www.8hourreview.com/assets/8hourreview-removebg-preview.png" },
+    { property: "og:url", content: "https://www.8hourreview.com/" },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: "8 Hour Game Reviews - Honest Gaming Reviews" },
     {
@@ -161,7 +161,7 @@ useHead({
       content:
         "Honest, focused game reviews after exactly 8 hours of gameplay. Find reviews by genre, platform, and more.",
     },
-    { name: "twitter:image", content: "/assets/8hourreview-removebg-preview.png" },
+    { name: "twitter:image", content: "https://www.8hourreview.com/assets/8hourreview-removebg-preview.png" },
   ],
 });
 </script>

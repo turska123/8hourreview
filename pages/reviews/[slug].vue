@@ -151,7 +151,7 @@ useHead(() => {
       { property: "og:description", content: data.value.description },
       { property: "og:type", content: "article" },
       { property: "og:image", content: data.value.image },
-      { property: "og:url", content: `https://8hourreview.com/reviews/${route.params.slug}` },
+      { property: "og:url", content: `https://www.8hourreview.com/reviews/${route.params.slug}` },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: data.value.title },
       { name: "twitter:description", content: data.value.description },

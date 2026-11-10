@@ -53,15 +53,15 @@ useHead({
       content: "Learn more about Mika Turkia, the creator of 8 Hour Game Reviews, and support the project.",
     },
     { property: "og:type", content: "profile" },
-    { property: "og:image", content: "/assets/8hourreview-removebg-preview.png" },
-    { property: "og:url", content: "https://8hourreview.com/about" },
+    { property: "og:image", content: "https://www.8hourreview.com/assets/8hourreview-removebg-preview.png" },
+    { property: "og:url", content: "https://www.8hourreview.com/about" },
     { name: "twitter:card", content: "summary_large_image" },
     { name: "twitter:title", content: "About Me - 8 Hour Game Reviews" },
     {
       name: "twitter:description",
       content: "Learn more about Mika Turkia, the creator of 8 Hour Game Reviews, and support the project.",
     },
-    { name: "twitter:image", content: "/assets/8hourreview-removebg-preview.png" },
+    { name: "twitter:image", content: "https://www.8hourreview.com/assets/8hourreview-removebg-preview.png" },
   ],
 });
 </script>
