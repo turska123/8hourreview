@@ -75,7 +75,7 @@
     "package": "minimatch",
     "expires": "2026-12-10",
     "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
-    "why": "Build-time file matching (nitropack, tailwind); never ships to visitors. Fix needs Nuxt 4."
+    "why": "Build-time file matching (nitropack, tailwind, and eslint inside Nuxt's vite-plugin-checker); never ships to visitors. Fixed with Nuxt 4 (or a newer eslint inside it)."
   },
   "GHSA-g5xx-pwrp-g3fv": {
     "package": "unhead",
