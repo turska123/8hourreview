@@ -23,7 +23,7 @@ const OFFSITE_ALLOWED: string[] = [
 /** Collects everything that would make the browser log dirty. Call before navigating. */
 async function watchLog(page: Page, local: string, expected404 = ""): Promise<string[]> {
   const problems: string[] = [];
-  // Every request to another site is aborted (no real network) and, unless allowed, reported.
+  // No real network: an allowed off-site request gets an empty answer, any other is aborted and reported.
   await page.route(
     (url) => url.origin !== local,
     (route) => {
