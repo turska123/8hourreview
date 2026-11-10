@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(tools/check.sh)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git fetch:*)",
+      "Bash(git branch:*)",
+      "Bash(glab issue view:*)",
+      "Bash(glab issue list:*)",
+      "Bash(glab mr view:*)",
+      "Bash(glab mr list:*)",
+      "Bash(glab mr diff:*)"
+    ],
+    "deny": [
+      "Bash(glab mr merge:*)",
+      "Bash(glab mr approve:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(git push --no-verify:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard.py\""
+          }
+        ]
+      }
+    ]
+  }
+}

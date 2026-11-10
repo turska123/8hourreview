@@ -1,0 +1,134 @@
+{
+  "GHSA-3g3m-2fjr-6pw4": {
+    "package": "glob",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Build-time file matching (nitropack, tailwind); never ships to visitors. Fix needs Nuxt 4."
+  },
+  "GHSA-525v-9gp9-w22h": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-5cwg-6vw7-rj6p": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-5x38-2vff-x55p": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-648h-gw55-m2g7": {
+    "package": "@nuxt/vite-builder",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Dev server only, and the site has no private runtime config. Fix needs Nuxt 4."
+  },
+  "GHSA-6qrw-m8cv-hcxf": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-6wvx-3r32-xmcg": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-7wch-p9px-956x": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-86w9-cpqp-85rv": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-8hrf-8g6f-7xwp": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-95h2-gj7x-gx9w": {
+    "package": "unhead",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "useHeadSafe bypass. The site never calls useHeadSafe; head tags come from fixed strings and Akim's own front matter. Fix needs @nuxt/content 3 / Nuxt 4."
+  },
+  "GHSA-cj6r-rrr9-fg82": {
+    "package": "@nuxtjs/mdc",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "XSS from untrusted Markdown. Only Akim writes the reviews (content/ in git, rendered at build); visitors can't submit Markdown. Fix needs @nuxt/content 3."
+  },
+  "GHSA-g3hv-75wg-m249": {
+    "package": "minimatch",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Build-time file matching (nitropack, tailwind, and eslint inside Nuxt's vite-plugin-checker); never ships to visitors. Fixed with Nuxt 4 (or a newer eslint inside it)."
+  },
+  "GHSA-g5xx-pwrp-g3fv": {
+    "package": "unhead",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "useHeadSafe bypass. The site never calls useHeadSafe; head tags come from fixed strings and Akim's own front matter. Fix needs @nuxt/content 3 / Nuxt 4."
+  },
+  "GHSA-h46v-rmh6-fq4f": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-hqq3-7jhf-c5jx": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-j82m-pc2v-2484": {
+    "package": "@nuxtjs/mdc",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "XSS from untrusted Markdown. Only Akim writes the reviews (content/ in git, rendered at build); visitors can't submit Markdown. Fix needs @nuxt/content 3."
+  },
+  "GHSA-jc66-7q78-782g": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-mxm6-v9r6-r94c": {
+    "package": "@nuxtjs/mdc",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "XSS from untrusted Markdown. Only Akim writes the reviews (content/ in git, rendered at build); visitors can't submit Markdown. Fix needs @nuxt/content 3."
+  },
+  "GHSA-rhr8-3pm8-cq29": {
+    "package": "node-forge",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed node-forge is newer than two weeks; goes with @nuxt/content 3."
+  },
+  "GHSA-vjh5-4x84-xrqp": {
+    "package": "@nuxt/nitro-server, nuxt",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Server-side issue (route rules / server islands). The site is static files on Netlify: no Nitro server, no route rules, no server islands. Fix needs Nuxt 4."
+  },
+  "GHSA-xfq5-w38q-pc2x": {
+    "package": "nuxt",
+    "expires": "2026-12-10",
+    "issue": "https://gitlab.com/akimsprojects/8hourreview/-/issues/2",
+    "why": "Server-side issue (route rules / server islands). The site is static files on Netlify: no Nitro server, no route rules, no server islands. Fix needs Nuxt 4."
+  }
+}

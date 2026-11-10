@@ -6,18 +6,31 @@
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
             <NuxtLink to="/" class="flex items-center">
-              <img src="/assets/8hourreview-removebg-preview.png" alt="8HR Reviews Logo" class="h-20 w-auto mr-2" />
+              <img
+                src="/assets/8hourreview-removebg-preview.png"
+                alt="8HR Reviews Logo"
+                class="h-20 w-auto mr-2"
+              />
             </NuxtLink>
           </div>
-          
+
           <div class="flex items-center space-x-6">
-            <NuxtLink to="/" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+            <NuxtLink
+              to="/"
+              class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+            >
               Home
             </NuxtLink>
-            <NuxtLink to="/reviews" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+            <NuxtLink
+              to="/reviews"
+              class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+            >
               Reviews
             </NuxtLink>
-            <NuxtLink to="/about" class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400">
+            <NuxtLink
+              to="/about"
+              class="text-gray-700 dark:text-gray-300 hover:text-indigo-600 dark:hover:text-indigo-400"
+            >
               About
             </NuxtLink>
             <ColorModeButton />
@@ -40,28 +53,31 @@
         </div>
       </div>
       <div class="flex">
-  <a
-    href="https://dashboard.simpleanalytics.com/?utm_source=&utm_content=badge&affiliate=tebup"
-    referrerpolicy="origin"
-    class="md:absolute bottom-0 left-0"
-    target="_blank">
-    <picture>
-      <source
-        srcset="https://simpleanalyticsbadges.com/?mode=dark"
-        media="(prefers-color-scheme: dark)"
-      />
-      <img
-        src="https://simpleanalyticsbadges.com/?mode=light"
-        alt="Simple Analytics Badge"
-        loading="lazy"
-        referrerpolicy="no-referrer"
-        crossorigin="anonymous"
-      />
-    </picture>
-  </a>
-  <a href="https://www.buymeacoffee.com/mikaturkia" class="md:absolute bottom-0 right-0"><img src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=mikaturkia&button_colour=111827&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00" /></a>
+        <a
+          href="https://dashboard.simpleanalytics.com/?utm_source=&utm_content=badge&affiliate=tebup"
+          referrerpolicy="origin"
+          class="md:absolute bottom-0 left-0"
+          target="_blank"
+        >
+          <picture>
+            <source
+              srcset="https://simpleanalyticsbadges.com/?mode=dark"
+              media="(prefers-color-scheme: dark)"
+            />
+            <img
+              src="https://simpleanalyticsbadges.com/?mode=light"
+              alt="Simple Analytics Badge"
+              loading="lazy"
+              referrerpolicy="no-referrer"
+              crossorigin="anonymous"
+            />
+          </picture>
+        </a>
+        <a href="https://www.buymeacoffee.com/mikaturkia" class="md:absolute bottom-0 right-0"
+          ><img
+            src="https://img.buymeacoffee.com/button-api/?text=Buy me a beer&emoji=🍺&slug=mikaturkia&button_colour=111827&font_colour=ffffff&font_family=Lato&outline_colour=000000&coffee_colour=FFDD00"
+        /></a>
       </div>
-     
     </footer>
   </div>
 </template>
@@ -69,26 +85,27 @@
 <script setup>
 useHead({
   htmlAttrs: {
-    lang: 'en'
+    lang: "en",
   },
   script: [
     {
       src: "https://scripts.simpleanalyticscdn.com/latest.js",
-      async: true
-    }
+      async: true,
+    },
   ],
   noscript: [
     {
-      children: '<img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade"/>'
-    }
+      children:
+        '<img src="https://queue.simpleanalyticscdn.com/noscript.gif" alt="" referrerpolicy="no-referrer-when-downgrade"/>',
+    },
   ],
   link: [
-    { rel: 'icon', href: '/favicon.ico' },
-    { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/fav/favicon-32x32.png' },
-    { rel: 'icon', type: 'image/png', sizes: '16x16', href: '/fav/favicon-16x16.png' },
-    { rel: 'apple-touch-icon', sizes: '180x180', href: '/fav/apple-touch-icon.png' },
-    { rel: 'manifest', href: '/fav/site.webmanifest' },
-    { rel: 'shortcut icon', href: '/fav/favicon.ico' }
-  ]
-})
+    { rel: "icon", href: "/favicon.ico" },
+    { rel: "icon", type: "image/png", sizes: "32x32", href: "/fav/favicon-32x32.png" },
+    { rel: "icon", type: "image/png", sizes: "16x16", href: "/fav/favicon-16x16.png" },
+    { rel: "apple-touch-icon", sizes: "180x180", href: "/fav/apple-touch-icon.png" },
+    { rel: "manifest", href: "/fav/site.webmanifest" },
+    { rel: "shortcut icon", href: "/fav/favicon.ico" },
+  ],
+});
 </script>

@@ -1,6 +1,6 @@
-@import 'tailwindcss/base';
-@import 'tailwindcss/components';
-@import 'tailwindcss/utilities';
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
 
 @layer base {
   body {
@@ -12,23 +12,23 @@
   /*.prose-custom {
     @apply prose prose-gray dark:prose-invert max-w-none;
   }*/
-  
+
   .prose-custom h1 {
     @apply text-3xl font-bold mb-4;
   }
-  
+
   .prose-custom h2 {
     @apply text-2xl font-semibold mb-3 mt-8;
   }
-  
+
   .prose-custom h3 {
     @apply text-xl font-medium mb-2 mt-6;
   }
-  
+
   .prose-custom p {
     @apply mb-4 leading-relaxed;
   }
-  
+
   .prose-custom img {
     @apply rounded-lg shadow-md;
   }

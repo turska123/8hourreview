@@ -1,6 +1,5 @@
 ---
-
-title: "8-Hour Review: Claire Obscur: Expedition 33" 
+title: "8-Hour Review: Claire Obscur: Expedition 33"
 description: "A captivating and immersive game with stunning visuals and a gripping story"
 date: "2025-06-07"
 platform: "PC/Linux (Mint)"
@@ -15,7 +14,7 @@ pros:
   - "Strong and memorable opening hours"
 cons:
   - "Combat feels clunky early on"
-  - "Iacks deep combat strategy outside of parrying/dodging"
+  - "Lacks deep combat strategy outside of parrying/dodging"
 bottomLine: "A visually striking and emotionally engaging adventure that grabs your attention early—and doesn’t let go."
 ---
 

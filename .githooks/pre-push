@@ -1,0 +1,36 @@
+#!/usr/bin/env bash
+# Clean gate before every push (dev-wiki/standards §4). Turn on once per clone:
+#   git config core.hooksPath .githooks
+# Passes at once if tools/check.sh already printed ALL CLEAN on the exact commit being pushed (.git/check-stamp).
+# Otherwise runs the check now. A person can skip it in an emergency with --no-verify; Claude can't (guard hook).
+set -uo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+stamp="$(git rev-parse --git-dir)/check-stamp"
+zero="0000000000000000000000000000000000000000"
+head="$(git rev-parse HEAD)"
+need_check=0
+
+while read -r _local_ref local_sha _remote_ref _remote_sha; do
+  [[ "$local_sha" == "$zero" ]] && continue  # deleting a remote branch: nothing to check
+  # Annotated tags point at a tag object: compare the commit behind it.
+  local_commit="$(git rev-parse "$local_sha^{commit}")"
+  [[ -f "$stamp" && "$(cat "$stamp")" == "$local_commit" ]] && continue
+  if [[ "$local_commit" != "$head" ]]; then
+    echo "pre-push: $local_commit isn't checked out, so the check can't run on it."
+    echo "          Check it out, run tools/check.sh, then push again."
+    exit 1
+  fi
+  need_check=1
+done
+
+[[ $need_check -eq 0 ]] && exit 0
+
+if [[ -n "$(git status --porcelain)" ]]; then
+  echo "pre-push: uncommitted changes. The check runs on the working tree, so it wouldn't be testing what you push."
+  echo "          Commit or stash them, then push again."
+  exit 1
+fi
+
+echo "pre-push: running tools/check.sh ..."
+"$root/tools/check.sh" || { echo "pre-push: check failed, push refused. Fix the cause and push again."; exit 1; }
