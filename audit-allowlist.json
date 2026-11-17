@@ -33,7 +33,7 @@
     "package": "node-forge",
     "expires": "2026-12-10",
     "issue": "http://192.168.50.103:30142/akimsprojects/8hourreview/issues/2",
-    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Goes with @nuxt/content 3."
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed in node-forge 1.4.3 (2026-11-04), inside listhen's range: an in-range lockfile update clears it once that release is two weeks old (2026-11-18)."
   },
   "GHSA-6qrw-m8cv-hcxf": {
     "package": "node-forge",
@@ -93,7 +93,7 @@
     "package": "picomatch",
     "expires": "2026-12-10",
     "issue": "http://192.168.50.103:30142/akimsprojects/8hourreview/issues/2",
-    "why": "Build-time file matching (ReDoS on crafted globs); never ships to visitors. Fix needs Nuxt 4."
+    "why": "Build-time file matching (ReDoS on crafted globs); never ships to visitors. No fixed picomatch release yet (all <=4.0.7, the latest, are affected): dev-wiki#48."
   },
   "GHSA-g3hv-75wg-m249": {
     "package": "minimatch",
@@ -129,7 +129,7 @@
     "package": "node-forge",
     "expires": "2026-12-10",
     "issue": "http://192.168.50.103:30142/akimsprojects/8hourreview/issues/2",
-    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Goes with @nuxt/content 3."
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed in node-forge 1.4.3 (2026-11-04), inside listhen's range: an in-range lockfile update clears it once that release is two weeks old (2026-11-18)."
   },
   "GHSA-jc66-7q78-782g": {
     "package": "node-forge",
@@ -165,7 +165,7 @@
     "package": "node-forge",
     "expires": "2026-12-10",
     "issue": "http://192.168.50.103:30142/akimsprojects/8hourreview/issues/2",
-    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Goes with @nuxt/content 3."
+    "why": "Only via listhen (the dev server's HTTPS helper in @nuxt/content 2); never runs in the static build or ships. Fixed in node-forge 1.4.3 (2026-11-04), inside listhen's range: an in-range lockfile update clears it once that release is two weeks old (2026-11-18)."
   },
   "GHSA-xfq5-w38q-pc2x": {
     "package": "nuxt",
