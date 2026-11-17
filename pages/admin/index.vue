@@ -95,10 +95,11 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium mb-2">Image URL</label>
+              <label class="block text-sm font-medium mb-2">Image URL*</label>
               <input
                 v-model="form.image"
                 type="url"
+                required
                 class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white"
                 placeholder="https://example.com/game-image.jpg"
               />
@@ -323,20 +324,21 @@ const generateReview = () => {
     score: form.score,
     platform: form.platform,
     genres: form.genres,
-    image: form.image || undefined,
+    image: form.image,
     pros: cleanPros.length > 0 ? cleanPros : undefined,
     cons: cleanCons.length > 0 ? cleanCons : undefined,
     bottomLine: form.bottomLine || undefined,
   };
 
-  // Fields left empty (undefined) are left out of the file.
+  // Fields left empty (undefined) are left out of the file. Strings go through JSON.stringify: a JSON string is a
+  // valid YAML double-quoted scalar, so quotes, backslashes, colons and newlines round-trip (#6).
   const yamlFrontmatter = Object.entries(frontmatter)
     .filter(([, value]) => value !== undefined)
     .map(([key, value]) => {
       if (Array.isArray(value)) {
-        return `${key}:\n${value.map((item) => `  - "${item}"`).join("\n")}`;
+        return `${key}:\n${value.map((item) => `  - ${JSON.stringify(item)}`).join("\n")}`;
       } else if (typeof value === "string") {
-        return `${key}: "${value}"`;
+        return `${key}: ${JSON.stringify(value)}`;
       } else {
         return `${key}: ${value}`;
       }

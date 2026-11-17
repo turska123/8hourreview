@@ -70,6 +70,9 @@ bottomLine: "Worth playing despite minor issues"
 Your review content goes here in Markdown format...
 ```
 
+`image` is required: share previews (`og:image`, `twitter:image`) use it, and the smoke test fails without it. Quote
+every text value; the admin form does it for you, including quotes and line breaks inside a field.
+
 Each review covers:
 
 - **First Impressions**: initial thoughts when starting
