@@ -54,7 +54,7 @@ async function brokenLinks(page: Page, request: APIRequestContext): Promise<stri
   );
   const broken: string[] = [];
   for (const href of new Set(links)) {
-    const res = await request.get(href.split("#")[0]);
+    const res = await request.get(href.split("#")[0]!);
     if (!res.ok()) broken.push(`broken link ${href} (HTTP ${res.status()})`);
   }
   return broken;

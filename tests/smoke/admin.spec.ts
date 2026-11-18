@@ -51,7 +51,7 @@ async function fillList(page: Page, placeholder: string, addButton: string, valu
   while ((await inputs.count()) < values.length) {
     await page.getByRole("button", { name: addButton }).click();
   }
-  for (let i = 0; i < values.length; i++) await inputs.nth(i).fill(values[i]);
+  for (let i = 0; i < values.length; i++) await inputs.nth(i).fill(values[i]!);
 }
 
 async function fillForm(page: Page, review: Partial<Typed>): Promise<void> {
@@ -82,10 +82,10 @@ async function generatedFile(page: Page): Promise<{ data: Record<string, unknown
   const text = (await code.textContent()) ?? "";
   const match = /^---\n([\s\S]*?)\n---\n\n([\s\S]*)$/.exec(text);
   expect(match, `output is not "---\\n<yaml>\\n---\\n\\n<content>":\n${text}`).not.toBeNull();
-  const doc = parseDocument(match![1], { strict: true, uniqueKeys: true, prettyErrors: true });
+  const doc = parseDocument(match![1]!, { strict: true, uniqueKeys: true, prettyErrors: true });
   expect(doc.errors.map(String), `front matter is not valid YAML:\n${match![1]}`).toEqual([]);
   expect(doc.warnings.map(String), `front matter has YAML warnings:\n${match![1]}`).toEqual([]);
-  return { data: doc.toJS() as Record<string, unknown>, body: match![2] };
+  return { data: doc.toJS() as Record<string, unknown>, body: match![2]! };
 }
 
 test.describe("admin review generator", () => {
@@ -188,7 +188,7 @@ test.describe("admin review generator", () => {
     const readme = readFileSync("README.md", "utf8");
     const section = /^## Writing a review\n([\s\S]*?)(?=^## |(?![\s\S]))/m.exec(readme);
     expect(section, "README has no '## Writing a review' section").not.toBeNull();
-    const prose = section![1].replace(/```[\s\S]*?```/g, "");
+    const prose = section![1]!.replace(/```[\s\S]*?```/g, "");
     expect(prose).toMatch(/\bimage\b[^\n]*\brequired\b|\brequired\b[^\n]*\bimage\b/i);
   });
 });

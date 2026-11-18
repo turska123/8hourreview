@@ -109,7 +109,7 @@
           </div>
 
           <div v-else-if="data && data.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <ReviewCard v-for="review in data.slice(0, 6)" :key="review._path" :review="review" />
+            <ReviewCard v-for="review in data.slice(0, 6)" :key="review.path" :review="review" />
           </div>
 
           <div v-else class="text-center text-gray-600 dark:text-gray-400">
@@ -134,7 +134,7 @@
 import { useHead } from "nuxt/app";
 
 const { data, pending } = await useAsyncData("home-reviews", () =>
-  queryContent("reviews").sort({ date: -1 }).limit(6).find(),
+  queryCollection("reviews").order("date", "DESC").limit(6).all(),
 );
 
 useHead({

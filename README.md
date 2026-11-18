@@ -2,7 +2,7 @@
 
 Game reviews written after exactly 8 hours of play: <https://www.8hourreview.com>.
 
-A static [Nuxt 3](https://nuxt.com) site. Reviews are Markdown files read by @nuxt/content, styled with Tailwind CSS,
+A static [Nuxt 4](https://nuxt.com) site. Reviews are Markdown files read by @nuxt/content 3, styled with Tailwind CSS,
 with search, genre filter and sorting on the review list, a light/dark toggle, and an `/admin` page that builds a new
 review's Markdown for you.
 
@@ -71,7 +71,8 @@ Your review content goes here in Markdown format...
 ```
 
 `image` is required: share previews (`og:image`, `twitter:image`) use it, and the smoke test fails without it. Quote
-every text value; the admin form does it for you, including quotes and line breaks inside a field.
+every text value; the admin form does it for you, including quotes and line breaks inside a field. A new front matter
+field must also be added to the schema in `content.config.ts`, or the pages won't see it.
 
 Each review covers:
 

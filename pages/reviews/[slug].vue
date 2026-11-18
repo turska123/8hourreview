@@ -134,7 +134,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { data } = await useAsyncData(`review-${route.params.slug}`, () => {
-  return queryContent("reviews", route.params.slug).findOne();
+  return queryCollection("reviews").path(`/reviews/${route.params.slug}`).first();
 });
 
 const formatDate = (date) => {
