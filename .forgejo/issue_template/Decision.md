@@ -1,3 +1,11 @@
+---
+name: "Decision"
+about: "An open design question for Akim"
+labels:
+  - decision
+  - needs-akim
+---
+
 <!-- Decisions are Akim's. Take the time to think. -->
 
 ## Question
@@ -13,6 +21,4 @@
 
 ## Recommendation
 
-When decided, add a row to the wiki `Decision-log` and close this issue.
-
-/label ~"decision" ~"needs-akim"
+When decided, add a row to the wiki page "Decision log" and close this issue.

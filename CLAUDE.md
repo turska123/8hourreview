@@ -6,17 +6,21 @@ Markdown in the browser. Run / check / publish: [README.md](README.md).
 
 **Way of working:** the shared standard (`~/source/Repos/dev-wiki/standards/README.md`), tier **site**: content
 (`content/`, `public/`, `docs/`) may go straight to `main` once the check passes; code (pages, layouts, components,
-`assets/css/`, config, tests, tooling) goes through a Draft MR that Akim merges. Backlog = GitLab issues. Decisions =
-wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propose what's listed there.
+`assets/css/`, config, tests, tooling) goes through a draft pull request (`WIP:`) that Akim merges.
+
+**Where it lives:** Akim's private forge (Forgejo; moved from GitLab 2026-11-16, dev-wiki#15). It mirrors forge →
+GitLab → GitHub → Netlify. Backlog = forge issues (`tea issues`, run in the repo). Decisions = forge wiki page
+"Decision log" (`tea wiki view "Decision log"`); don't re-propose what's listed there. The GitLab and GitHub copies
+are mirrors: never push to them. This file is public on GitHub, so no forge address in it.
 
 ## Rules (agreed with Akim)
 
-- **Every push to `main` is live.** GitLab push-mirrors `main` to the **public** GitHub repo `turska123/8hourreview`,
-  and Netlify rebuilds www.8hourreview.com from it. So: the gate before every push (the hook does it), nothing
-  secret or personal in any commit, and a content push to main is a publish.
-- **Don't touch Netlify, the GitHub mirror or DNS (GoDaddy).** Moving off Netlify is idea #9.
-- **The GitLab Pages job is manual-only** (`publish-*` tag or Build > Pipelines > Run pipeline). Nobody uses that
-  copy yet; don't make it run on pushes again.
+- **Every push to `main` is live.** The forge push-mirrors to GitLab, which mirrors `main` on to the **public**
+  GitHub repo `turska123/8hourreview`, and Netlify rebuilds www.8hourreview.com from it. So: the gate before every
+  push (the hook does it), nothing secret or personal in any commit, and a content push to main is a publish.
+- **Don't touch Netlify, the GitLab or GitHub mirrors or DNS (GoDaddy).** Moving off Netlify is idea #9.
+- **The GitLab Pages job is manual-only** (a `publish-*` tag pushed to the forge reaches GitLab through the mirror,
+  or Build > Pipelines > Run pipeline on GitLab). Nobody uses that copy yet; don't make it run on pushes again.
 - Third-party requests are allow-listed in `tests/smoke/pages.spec.ts` (`OFFSITE_ALLOWED`); anything new from another
   site fails the smoke test. Whether the current ones stay is #3. No Google Fonts, ever.
 - Reviews are Markdown in `content/reviews/<slug>.md`; the front matter fields are in README "Writing a review".

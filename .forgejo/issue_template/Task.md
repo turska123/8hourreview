@@ -1,3 +1,10 @@
+---
+name: "Task"
+about: "A piece of work: what and why, done when"
+labels:
+  - feature
+---
+
 ## What and why
 
 <!-- One or two sentences. What changes for the user? -->
@@ -11,5 +18,3 @@
 ## Notes
 
 <!-- Docs to read, related issues, folders touched. -->
-
-/label ~"feature"

@@ -64,7 +64,17 @@ step() {
   # 9>&-: the step doesn't inherit the lock, so a daemon it starts (podman's conmon, a dev server) can't hold it.
   log="$("$@" 2>&1 9>&-)"
   code=$?
-  [[ -n "$deny" ]] && bad="$(grep -E -i -- "$deny" <<< "$log")"
+  if [[ -n "$deny" ]]; then
+    local scan="$log"
+    if [[ $_check_wasi -eq 1 ]]; then
+      # WebAssembly fallback in use (dev-wiki#32): Node prints this one known warning on every run. It is left out
+      # of the --deny scan only, says so below, and stays in the log; any other warning still fails the step.
+      scan="$(_drop_wasi_warning <<< "$log")"
+      [[ "$scan" != "$log" ]] &&
+        echo "note  $label: ignored Node's \"WASI is an experimental feature\" warning (WebAssembly fallback on this CPU, dev-wiki#33)"
+    fi
+    bad="$(grep -E -i -- "$deny" <<< "$scan")"
+  fi
   if [[ $code -ne 0 || -n "$bad" ]]; then
     echo "FAIL  $label (exit $code)"
     # Show the matched warning lines if that's why it failed, else the tail of the output.
@@ -109,3 +119,29 @@ finish() {
     exit 1
   fi
 }
+
+# CPUs without AVX2 (the NAS, dev-wiki#32): swap native Node packages that crash for their WebAssembly builds
+# before any step runs. A crashing package without one fails the check (risk dev-wiki#33).
+# Node calls WASI experimental and prints one warning about it on every run, which trips build steps' --deny.
+# Nothing is switched off in Node: `step` leaves exactly that warning (and Node's "(Use node --trace-warnings"
+# hint after it) out of its --deny scan, and prints a `note` line each time it does, so it is never silent.
+_check_wasi=0
+_drop_wasi_warning() {  # stdin → stdout without Node's WASI warning line (whole line, exact) and the hint right after it
+  awk '/^\(node:[0-9]+\) ExperimentalWarning: WASI is an experimental feature and might change at any time$/ { skip = 1; next }
+       skip && /^\(Use `node --trace-warnings/ { skip = 0; next }
+       { skip = 0; print }'
+}
+if [[ -d node_modules && -f tools/wasm-fallback.sh ]]; then
+  _check_count=$((_check_count + 1))
+  if _wasm_log="$(bash tools/wasm-fallback.sh 2>&1 9>&-)"; then
+    [[ -n "$_wasm_log" ]] && echo "$_wasm_log"
+    _record "wasm fallback"
+  else
+    echo "$_wasm_log"
+    _record "wasm fallback" "$_wasm_log"
+    _check_failures=$((_check_failures + 1))
+  fi
+  if find node_modules -type d -name '*-wasm32-wasi' -print -quit 2>/dev/null | grep -q .; then
+    _check_wasi=1
+  fi
+fi

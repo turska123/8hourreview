@@ -1,3 +1,10 @@
+---
+name: "Bug"
+about: "Something is broken: steps, expected, actual, log"
+labels:
+  - bug
+---
+
 ## Where
 
 <!-- Page / screen / room, and the version or commit (`git log -1 --oneline`). -->
@@ -19,5 +26,3 @@
 
 - [ ] A test reproduces it and fails before the fix
 - [ ] Fixed, test passes, `tools/check.sh` → ALL CLEAN
-
-/label ~"bug"
