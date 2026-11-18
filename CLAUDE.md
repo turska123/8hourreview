@@ -32,12 +32,13 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
   errors/warnings, failed or off-site requests and broken links; `site.spec.ts` checks share images, the manifest and
   the not-found page; `images.spec.ts` fails on photo metadata in `public/`, `assets/` or the output.
 - `npm audit` findings that need Nuxt 4 are in `audit-allowlist.json` (expire **2026-12-10**, #2). An expired entry
-  fails the check: do #2 or re-check and extend with a reason.
+  fails the check: do #2 or re-check and extend with a reason. Exception: picomatch GHSA-fc5q-39xc-vjpf has no fixed
+  release and Nuxt 4 doesn't clear it (until **2027-01-10**, dev-wiki#55).
 
 ## State (2026-11-10)
 
 - Live on Netlify. Adopted the shared standard in #1 (gate, tests, docs, Pages job manual-only).
-- Next: #2 Nuxt 4 + @nuxt/content 3 (clears the audit allow-list). Waiting on Akim: #3 third-party images, #4
+- Next: #2 Nuxt 4 + @nuxt/content 3 (clears the audit allow-list except picomatch). Waiting on Akim: #3 third-party images, #4
   licence, #5 `/admin` on the live site, #8 About page name and footer year. Small: #6 admin YAML quoting bug, #7
   type-check the Vue files.
 
