@@ -3,18 +3,23 @@
 #   git config core.hooksPath .githooks
 # Passes at once if tools/check.sh already printed ALL CLEAN on the exact commit being pushed (.git/check-stamp).
 # Otherwise runs the check now. A person can skip it in an emergency with --no-verify; Claude can't (guard hook).
+# wip/<issue>-<name> branches get the secret scan only (gitleaks, every commit the push would send), so unfinished
+# work that fails the check still reaches the forge (/handoff, dev-wiki#38). Merging still needs ALL CLEAN.
 set -uo pipefail
 
 root="$(git rev-parse --show-toplevel)"
 stamp="$(git rev-parse --git-dir)/check-stamp"
 zero="0000000000000000000000000000000000000000"
 head="$(git rev-parse HEAD)"
+wip_ref='^refs/heads/wip/[0-9]+-.+'
 need_check=0
+wip_commits=()
 
-while read -r _local_ref local_sha _remote_ref _remote_sha; do
+while read -r _local_ref local_sha remote_ref _remote_sha; do
   [[ "$local_sha" == "$zero" ]] && continue  # deleting a remote branch: nothing to check
   # Annotated tags point at a tag object: compare the commit behind it.
   local_commit="$(git rev-parse "$local_sha^{commit}")"
+  if [[ "$remote_ref" =~ $wip_ref ]]; then wip_commits+=("$local_commit"); continue; fi
   [[ -f "$stamp" && "$(cat "$stamp")" == "$local_commit" ]] && continue
   if [[ "$local_commit" != "$head" ]]; then
     echo "pre-push: $local_commit isn't checked out, so the check can't run on it."
@@ -22,6 +27,18 @@ while read -r _local_ref local_sha _remote_ref _remote_sha; do
     exit 1
   fi
   need_check=1
+done
+
+for commit in "${wip_commits[@]}"; do
+  if ! command -v gitleaks > /dev/null 2>&1; then
+    echo "pre-push: gitleaks is missing, so a wip/ push can't be scanned (install: sudo dnf install gitleaks)."
+    exit 1
+  fi
+  # Everything reachable from the pushed commit: simple, and it can't miss a commit the forge doesn't have yet.
+  # --redact: the report shows file:line and rule, never the secret.
+  echo "pre-push: wip/ branch, secret scan only (gitleaks) ..."
+  (cd "$root" && gitleaks git --redact --no-banner --log-opts="$commit" .) ||
+    { echo "pre-push: possible secret in the commits, push refused. Remove it (rotate it if it was real)."; exit 1; }
 done
 
 [[ $need_check -eq 0 ]] && exit 0

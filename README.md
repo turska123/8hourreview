@@ -28,13 +28,15 @@ clone). Fix formatting with `npx prettier --write .`.
 
 ## Publish it
 
-**Every push to `main` goes live.** GitLab mirrors `main` to GitHub (`turska123/8hourreview`), and Netlify builds
-www.8hourreview.com from there with `nuxt generate`.
+The repo lives on a private forge (Forgejo) and is mirrored forge → GitLab (`akimsprojects/8hourreview`) → GitHub
+(`turska123/8hourreview`). Never push to GitLab or GitHub directly: the mirrors overwrite them.
+
+**Every push to `main` goes live.** Netlify builds www.8hourreview.com from the GitHub mirror with `nuxt generate`.
 
 - Reviews and other content (`content/`, `public/`) can be pushed straight to `main` once the check passes.
-- Code changes go through a merge request.
-- A copy of the site can also be built to GitLab Pages, but only by hand (a `publish-*` tag or Build > Pipelines >
-  Run pipeline). Nobody uses it yet.
+- Code changes go through a pull request on the forge.
+- A copy of the site can also be built to GitLab Pages, but only by hand (a `publish-*` tag, which reaches GitLab
+  through the mirror, or Build > Pipelines > Run pipeline on GitLab). Nobody uses it yet.
 
 Build locally with `npm run generate`; the site lands in `.output/public/`.
 
@@ -104,8 +106,8 @@ Tips for great reviews:
 | `tests/smoke/`        | Playwright smoke tests                               |
 | `tools/`              | `check.sh` (the gate) and its helpers                |
 
-How the project is run (tests, issues, reviews) follows a shared way of working; notes for Claude are in
-[CLAUDE.md](CLAUDE.md).
+How the project is run (tests, issues, reviews) follows a shared way of working; issues and the decision log are on
+the forge, and notes for Claude are in [CLAUDE.md](CLAUDE.md).
 
 ## License
 

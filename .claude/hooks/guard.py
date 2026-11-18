@@ -2,14 +2,18 @@
 """PreToolUse guard for Bash commands (dev-wiki/standards §4). Shared copy: edit it in dev-wiki and re-apply.
 
 Blocks, with a reason Claude sees:
-  - merging or approving an MR/PR (glab mr merge/approve, gh pr merge, the merge API, auto-merge),
-  - writing GitLab project settings, protected branches, members, variables, hooks or tokens through glab api,
+  - merging, approving or reviewing an MR/PR (glab mr merge/approve, gh pr merge,
+    tea pulls merge/approve/review, the merge and review APIs, auto-merge),
+  - writing project/repo settings, protected branches, members, variables, secrets, hooks or tokens through
+    glab api, tea api or tea's own subcommands (GitLab and Forgejo),
   - skipping the git hooks (--no-verify, -n, core.hooksPath changes),
-  - reading tokens (glab auth token, glab/gh config files, the keyring),
-  - pushing code straight to main in repos whose tier sends code through an MR (.claude/guard.json).
+  - reading tokens (glab auth token, tea login helper get, glab/gh/tea config files, the keyring),
+  - running Proton Pass (pass-cli, setup/secrets.sh): only Akim does that (dev-wiki#38),
+  - pushing straight to main in app and shared repos, and pushing code (not content) to main in site repos
+    (.claude/guard.json).
 
 Exit code 2 = block (stderr goes to Claude). Exit 0 = allow. These checks stop mistakes; they are not
-security: GitLab's own settings are the real lock.
+security (curl to the API isn't checked): the forge's own settings are the real lock.
 """
 
 import json
@@ -25,8 +29,9 @@ DEFAULT_CODE_PATTERN = (
     r"\.(gd|gdshader|py|sh|js|mjs|cjs|ts|tsx|jsx|astro|vue|svelte|css|scss|rs|sql|toml|ya?ml|json)$"
     r"|^project\.godot$|^\.claude/|^\.gitlab/|^\.githooks/|^tools/|^Dockerfile"
 )
-# Files that never count as code even if the pattern matches (content data on sites). Astro sites keep
-# their page text in src/data/*.ts and images in src/assets/: content, still type-checked and tested.
+# Site tier only: files that never count as code even if the pattern matches (content data on sites).
+# Astro sites keep their page text in src/data/*.ts and images in src/assets/: content, still type-checked
+# and tested.
 DEFAULT_CONTENT_PATTERN = (
     r"^src/content/|^src/data/|^src/assets/|^public/|^content/|^rooms/|^concept_art/|^docs/"
 )
@@ -38,10 +43,69 @@ PROTECTED_API = re.compile(
     r"|/deploy_keys|/deploy_tokens|/access_tokens|/approval|/merge_requests/\d+/(merge|approve)"
     r"|^groups/"  # anything at group level (runners, members, settings)
 )
+# Forgejo API paths (after stripping the host and /api/v1/) whose writes change settings or access.
+FORGEJO_PROTECTED_API = re.compile(
+    r"^repos/[^/\s]+/[^/\s]+/?$"  # the repo itself (settings, delete)
+    r"|^repos/[^/\s]+/[^/\s]+/(branch_protections|tag_protections|collaborators|teams|hooks|keys"
+    r"|push_mirrors|transfer|actions/(secrets|variables|runners))"
+    r"|/pulls/\d+/(merge|reviews)"
+    r"|^(orgs|admin|user|teams)/"  # org, site admin and own-account settings
+)
 WRITE_METHODS = {"PUT", "POST", "PATCH", "DELETE"}
 API_VALUE_FLAGS = {"-f", "-F", "--field", "--raw-field", "-H", "--header", "--input", "--hostname"}
+# Proton Pass holds the tokens (dev-wiki#38). Only Akim runs pass-cli, or setup/secrets.sh which calls it.
+PROTON_PASS_PROGRAMS = {"pass-cli", "secrets.sh"}
+PROTON_PASS_SUBSHELL = re.compile(r"\$\(\s*(\S*/)?pass-cli\b")
+PROTON_PASS_REASON = (
+    "Proton Pass holds the tokens: only Akim runs pass-cli and setup/secrets.sh. Ask Akim to run it."
+)
+COMMAND_WRAPPERS = {"sudo", "env", "exec", "command", "nohup", "time"}
+SHELLS = {"bash", "sh", "zsh"}
 # Paths that hold tokens. Reading them is blocked whatever the command.
-TOKEN_PATHS = re.compile(r"glab-cli/config\.yml|\.config/gh/hosts\.yml|\.git-credentials|\.netrc")
+TOKEN_PATHS = re.compile(
+    r"glab-cli/config\.yml|\.config/gh/hosts\.yml|\.config/tea/config\.yml|\.git-credentials|\.netrc"
+)
+# tea entity aliases (tea 0.16) and, per entity, the subcommands that are blocked and why.
+TEA_ALIASES = {
+    "pulls": ("pulls", "pull", "pr"),
+    "branches": ("branches", "branch", "b"),
+    "webhooks": ("webhooks", "webhook", "hooks", "hook"),
+    "repos": ("repos", "repo"),
+    "orgs": ("organizations", "organization", "org"),
+    "logins": ("logins", "login"),
+}
+TEA_ENTITIES = {alias: kind for kind, aliases in TEA_ALIASES.items() for alias in aliases}
+TEA_BLOCKED = {
+    "pulls": (
+        {"merge", "m", "approve", "lgtm", "a", "review"},
+        "Claude never merges, approves or reviews PRs. Tell Akim the PR is ready instead "
+        "(a review goes in a comment).",
+    ),
+    "pulls-clean": ({"clean"}, "Deleting branches needs Akim's OK."),
+    "branches": ({"protect", "P", "unprotect", "U", "rename", "rn"}, "Branch settings need Akim's OK."),
+    "webhooks": ({"create", "c", "delete", "rm", "update", "edit", "u"}, "Webhooks need Akim's OK."),
+    "repos": ({"edit", "e", "delete", "rm"}, "Repo settings and deletes need Akim's OK."),
+    "orgs": ({"create", "c", "delete", "rm"}, "Org changes need Akim's OK."),
+}
+TEA_SETTINGS = {"secrets", "secret", "variables", "variable", "vars", "var"}
+TEA_API_VALUE_FLAGS = {
+    "-f",
+    "--field",
+    "-F",
+    "--Field",
+    "-H",
+    "--header",
+    "-d",
+    "--data",
+    "-o",
+    "--output",
+    "-l",
+    "--login",
+    "-r",
+    "--repo",
+    "-R",
+    "--remote",
+}
 
 
 def block(reason: str) -> None:
@@ -69,6 +133,24 @@ def load_config(cwd: str) -> dict[str, Any]:
         return {"tier": "app"}  # no config: the strictest tier
 
 
+def check_proton_pass(words: list[str]) -> None:
+    """Blocks pass-cli and setup/secrets.sh as the program run, also behind sudo/env or `bash <file>`."""
+    while words and (words[0] in COMMAND_WRAPPERS or "=" in words[0]):
+        words = words[1:]
+        while words and words[0].startswith("-"):  # the wrapper's own options (env -i, sudo -E)
+            words = words[1:]
+    if words and words[0] in SHELLS:
+        # The shell's own options end at the first other word (the script); words after it are the script's.
+        i = 1
+        while i < len(words) and words[i][:1] in ("-", "+"):  # bash +x / +o turn options off
+            if words[i] == "-n":  # syntax check only: nothing runs
+                return
+            i += 2 if words[i] in ("-o", "+o", "-O", "+O") else 1  # these take a value (bash -o pipefail)
+        words = words[i:]
+    if words and os.path.basename(words[0]) in PROTON_PASS_PROGRAMS:
+        block(PROTON_PASS_REASON)
+
+
 def check_glab(words: list[str]) -> None:
     """Checks one already-split `glab ...` command, so text inside descriptions can't trigger it."""
     if words[1:3] in (["mr", "merge"], ["mr", "approve"]) or "--auto-merge" in words:
@@ -93,6 +175,46 @@ def check_glab(words: list[str]) -> None:
     if method in WRITE_METHODS and PROTECTED_API.search(endpoint + " "):
         block(
             "GitLab settings/access changes need Akim's OK in this session. "
+            "Ask them to do it or to approve it."
+        )
+
+
+def check_tea(words: list[str]) -> None:
+    """Checks one already-split `tea ...` command (Forgejo), like check_glab."""
+    args = [w for w in words[1:] if w not in ("--debug", "--vvv")]
+    entity, sub = [*args, "", ""][:2]
+    if entity in ("admin", "a"):
+        block("Site admin operations need Akim's OK.")
+    if entity in ("actions", "action") and sub in TEA_SETTINGS and args[2:3] not in ([], ["list"], ["ls"]):
+        block("Actions secrets and variables need Akim's OK in this session.")
+    kind = TEA_ENTITIES.get(entity, "")
+    if kind == "logins" and sub in ("helper", "git-credential") and "get" in args[2:]:
+        block("Never read or print tokens.")
+    if kind == "pulls" and sub in TEA_BLOCKED["pulls-clean"][0]:
+        block(TEA_BLOCKED["pulls-clean"][1])
+    if kind in TEA_BLOCKED and sub in TEA_BLOCKED[kind][0]:
+        block(TEA_BLOCKED[kind][1])
+    if entity != "api":
+        return
+    method, endpoint, has_body, i = "", "", False, 1
+    while i < len(args):
+        word = args[i]
+        if word in ("-X", "--method") and i + 1 < len(args):
+            method, i = args[i + 1].upper(), i + 2
+            continue
+        if word.startswith("--method="):
+            method = word.removeprefix("--method=").upper()
+        elif word in TEA_API_VALUE_FLAGS:
+            has_body = has_body or word in ("-f", "--field", "-F", "--Field", "-d", "--data")
+            i += 1
+        elif not word.startswith("-") and not endpoint:
+            endpoint = word
+        i += 1
+    method = method or ("POST" if has_body else "GET")  # tea: a body without -X means POST
+    path = re.sub(r"^https?://[^/]+", "", endpoint).lstrip("/").removeprefix("api/v1/").split("?")[0]
+    if method in WRITE_METHODS and FORGEJO_PROTECTED_API.search(path):
+        block(
+            "Forgejo settings/access changes, merges and reviews need Akim's OK in this session. "
             "Ask them to do it or to approve it."
         )
 
@@ -146,10 +268,14 @@ def check_push(segment: list[str], cwd: str) -> None:
         block(f"Force-pushing {main} is never allowed.")
     if config.get("tier") not in TIERS_WITH_MR_FOR_CODE:
         return
-    code_re = re.compile(config.get("code_pattern", DEFAULT_CODE_PATTERN))
-    content_re = re.compile(config.get("content_pattern", DEFAULT_CONTENT_PATTERN))
+    if config.get("tier") != "site":
+        # App and shared tiers: nothing goes straight to main, content folders included (standards §1).
+        # Blocked without a diff, so it fails closed when offline or when origin/main can't be read.
+        block(f"Every change goes through a branch + MR/PR in this tier, not straight to {main}.")
     git(cwd, "fetch", "-q", "origin", main)
     changed = git(cwd, "diff", "--name-only", f"origin/{main}...{ref}").splitlines()
+    code_re = re.compile(config.get("code_pattern", DEFAULT_CODE_PATTERN))
+    content_re = re.compile(config.get("content_pattern", DEFAULT_CONTENT_PATTERN))
     code = [f for f in changed if code_re.search(f) and not content_re.search(f)]
     if code:
         block(
@@ -164,6 +290,8 @@ def main() -> None:
     cwd = data.get("cwd") or "."
     if TOKEN_PATHS.search(command) or re.search(r"\bsecret-tool\s+lookup\b", command):
         block("Never read or print tokens.")
+    if PROTON_PASS_SUBSHELL.search(command):
+        block(PROTON_PASS_REASON)
     for part in re.split(r"&&|\|\||;|\n|\|", command):
         try:
             words = shlex.split(part)
@@ -171,10 +299,13 @@ def main() -> None:
             continue
         while words and "=" in words[0]:  # skip VAR=value prefixes
             words = words[1:]
+        check_proton_pass(words)
         if len(words) < 2:
             continue
         if words[0] == "glab":
             check_glab(words)
+        elif words[0] == "tea":
+            check_tea(words)
         elif words[0] == "gh":
             check_gh(words)
         elif words[0] == "cd":

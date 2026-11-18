@@ -12,11 +12,18 @@
       "Bash(glab issue list:*)",
       "Bash(glab mr view:*)",
       "Bash(glab mr list:*)",
-      "Bash(glab mr diff:*)"
+      "Bash(glab mr diff:*)",
+      "Bash(tea issues list:*)",
+      "Bash(tea pulls list:*)",
+      "Bash(tea wiki view:*)",
+      "Bash(tea wiki list:*)"
     ],
     "deny": [
       "Bash(glab mr merge:*)",
       "Bash(glab mr approve:*)",
+      "Bash(tea pulls merge:*)",
+      "Bash(tea pulls approve:*)",
+      "Bash(tea pulls review:*)",
       "Bash(gh pr merge:*)",
       "Bash(git push --no-verify:*)"
     ]
