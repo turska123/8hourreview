@@ -9,7 +9,7 @@
     "package": "minimatch",
     "expires": "2027-01-10",
     "issue": "https://forge.susi.software/akimsprojects/8hourreview/issues/17",
-    "why": "Build-time file matching on our own globs: @nuxt/content 3.16.2 (minimatch ^10) and nitropack -> archiver 8 -> readdir-glob 3 (no fixed version in range). Never ships to visitors."
+    "why": "Build-time file matching on our own globs, never shipped to visitors. nitropack 2.13.6 -> archiver 8 -> readdir-glob 3 has no fixed version in range. The @nuxt/content path is fixed in 3.17.0 (minimatch ^11.0.9, released 2026-11-17); taking it doesn't remove this entry (#17)."
   },
   "GHSA-mrhx-c7xc-m3w5": {
     "package": "zod",

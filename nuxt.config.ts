@@ -26,6 +26,13 @@ export default defineNuxtConfig({
   postcss: {
     plugins: { "tailwindcss/nesting": false },
   },
+  // Rolldown warns when plugins take most of a build's time ([PLUGIN_TIMINGS]). On this small site that depends on
+  // the machine's load, and check.sh fails on any WARN line, so the gate would fail at random.
+  vite: {
+    build: {
+      rolldownOptions: { checks: { bundlerTimings: false } },
+    },
+  },
   app: {
     head: {
       title: "8 Hour Game Reviews",
