@@ -91,9 +91,9 @@
   },
   "GHSA-fc5q-39xc-vjpf": {
     "package": "picomatch",
-    "expires": "2026-12-10",
-    "issue": "http://192.168.50.103:30142/akimsprojects/8hourreview/issues/2",
-    "why": "Build-time file matching (ReDoS on crafted globs); never ships to visitors. No fixed picomatch release yet (all <=4.0.7, the latest, are affected): dev-wiki#48."
+    "expires": "2027-01-10",
+    "issue": "https://forge.susi.software/akimsprojects/dev-wiki/issues/55",
+    "why": "ReDoS needs an attacker-supplied glob pattern; picomatch only gets our own fixed build-time globs (e.g. **/*.md), and the site ships static files. No fixed release yet (every version up to 4.0.7, the latest, is affected; upstream fix PRs unmerged as of 2026-11-18). Extended one month: dev-wiki#55."
   },
   "GHSA-g3hv-75wg-m249": {
     "package": "minimatch",
