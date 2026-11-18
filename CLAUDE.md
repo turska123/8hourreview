@@ -1,7 +1,7 @@
 # 8hourreview: notes for Claude
 
-8 Hour Game Reviews: Akim's game reviews, each written after exactly 8 hours of play. Nuxt 3 static site
-(`nuxt generate`) with @nuxt/content Markdown reviews, Tailwind, dark mode and an `/admin` page that builds a review's
+8 Hour Game Reviews: Akim's game reviews, each written after exactly 8 hours of play. Nuxt 4 static site
+(`nuxt generate`) with @nuxt/content 3 Markdown reviews, Tailwind, dark mode and an `/admin` page that builds a review's
 Markdown in the browser. Run / check / publish: [README.md](README.md).
 
 **Way of working:** the shared standard (`~/source/Repos/dev-wiki/standards/README.md`), tier **site**: content
@@ -20,8 +20,7 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
 - Third-party requests are allow-listed in `tests/smoke/pages.spec.ts` (`OFFSITE_ALLOWED`); anything new from another
   site fails the smoke test. Whether the current ones stay is #3. No Google Fonts, ever.
 - Reviews are Markdown in `content/reviews/<slug>.md`; the front matter fields are in README "Writing a review".
-- Exact dependency versions, at least two weeks old (`npm install --before=<date>`). Upgrades only in upkeep (#2 is
-  the Nuxt 4 / @nuxt/content 3 one).
+- Exact dependency versions, at least two weeks old (`npm install --before=<date>`). Upgrades only in upkeep.
 
 ## Checking
 
@@ -31,16 +30,16 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
 - Tests (`tests/smoke/`): `pages.spec.ts` opens every generated page (and the 404) and fails on console
   errors/warnings, failed or off-site requests and broken links; `site.spec.ts` checks share images, the manifest and
   the not-found page; `images.spec.ts` fails on photo metadata in `public/`, `assets/` or the output.
-- `npm audit` findings that need Nuxt 4 are in `audit-allowlist.json` (expire **2026-12-10**, #2). An expired entry
-  fails the check: do #2 or re-check and extend with a reason. Exception: picomatch GHSA-fc5q-39xc-vjpf has no fixed
-  release and Nuxt 4 doesn't clear it (until **2027-01-10**, dev-wiki#55).
+- `audit-allowlist.json` holds build-time advisories with no fixed release in range, until **2027-01-10**: picomatch
+  (dev-wiki#55), minimatch and zod (#17). An expired entry fails the check: re-check and remove, or extend with a
+  reason and Akim's OK.
 
-## State (2026-11-10)
+## State (2026-11-18)
 
 - Live on Netlify. Adopted the shared standard in #1 (gate, tests, docs, Pages job manual-only).
-- Next: #2 Nuxt 4 + @nuxt/content 3 (clears the audit allow-list except picomatch). Waiting on Akim: #3 third-party images, #4
-  licence, #5 `/admin` on the live site, #8 About page name and footer year. Small: #6 admin YAML quoting bug, #7
-  type-check the Vue files.
+- On Nuxt 4 and @nuxt/content 3 since #2. Waiting on Akim: #3 third-party images, #4 licence, #5 `/admin` on the
+  live site, #8 About page name and footer year. Small: #7 type-check the Vue files, #13 admin Score field, #17
+  allow-list re-check before 2027-01-10.
 
 ## Where to look
 
@@ -53,6 +52,7 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
 | Review Markdown generator           | `pages/admin/index.vue`                                         |
 | Static files (logo, favicons)       | `public/` (served as is; `assets/css/` is the Tailwind CSS)     |
 | Site title, modules                 | `nuxt.config.ts`                                                |
+| Review front matter schema          | `content.config.ts`                                             |
 | Gate, audit allow-list              | `tools/check.sh`, `tools/npm-audit.mjs`, `audit-allowlist.json` |
 | CI (GitLab Pages copy)              | `.gitlab-ci.yml`                                                |
 
@@ -67,6 +67,10 @@ wiki `Decision-log` (`glab api projects/:id/wikis/Decision-log`); don't re-propo
   build (`site.spec.ts` checks no generated page is the not-found page).
 - **Nuxt builds aren't byte-reproducible** (chunk hashes, build id, cache timestamps). To prove a change is
   formatting-only, compare the generated HTML with those masked.
+- **Content 3 keeps only schema fields.** Front matter the pages read must be in `content.config.ts`. Queries are
+  `queryCollection("reviews")`, and a review's URL is its `path` (no `_path`).
+- **Content 3 uses Node's built-in sqlite** (`experimental.sqliteConnector: "native"`): no native better-sqlite3,
+  which the NAS VM can't build. Needs Node 22.5+ (we use 24).
 - **Plain-JS `<script setup>`:** `nuxi typecheck` checks `.ts` files and `lang="ts"` blocks only (#7).
 - Use www.8hourreview.com in absolute URLs; 8hourreview.com 301-redirects to it.
 - The dev server runs on port 3333 (`nuxt.config.ts`), the smoke test's server on 4331.

@@ -50,7 +50,7 @@ function tags(html: string, tag: string): Record<string, string>[] {
   for (const [element] of html.matchAll(new RegExp(`<${tag}\\b[^>]*>`, "gi"))) {
     const attrs: Record<string, string> = {};
     for (const m of element.matchAll(/([^\s=/<>"']+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s>]+))/g))
-      attrs[m[1].toLowerCase()] = decodeEntities(m[2] ?? m[3] ?? m[4] ?? "");
+      attrs[m[1]!.toLowerCase()] = decodeEntities(m[2] ?? m[3] ?? m[4] ?? "");
     found.push(attrs);
   }
   return found;
@@ -143,7 +143,7 @@ test('a missing page shows a "not found" page inside the site layout, with a lin
 function mainHeadings(html: string): string[] {
   const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/i)?.[1] ?? html;
   return [...main.matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)].map(([, inner]) =>
-    decodeEntities(inner.replace(/<[^>]*>/g, "")).trim(),
+    decodeEntities(inner!.replace(/<[^>]*>/g, "")).trim(),
   );
 }
 

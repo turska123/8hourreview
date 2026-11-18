@@ -55,7 +55,7 @@
         </div>
 
         <div v-else-if="filteredReviews.length > 0" class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          <ReviewCard v-for="review in filteredReviews" :key="review._path" :review="review" />
+          <ReviewCard v-for="review in filteredReviews" :key="review.path" :review="review" />
         </div>
 
         <div v-else class="text-center py-12">
@@ -71,7 +71,7 @@ const searchQuery = ref("");
 const selectedGenre = ref("");
 const sortBy = ref("date");
 
-const { data: reviews, pending } = await useAsyncData("all-reviews", () => queryContent("reviews").find());
+const { data: reviews, pending } = await useAsyncData("all-reviews", () => queryCollection("reviews").all());
 
 const availableGenres = computed(() => {
   if (!reviews.value) return [];

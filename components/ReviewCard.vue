@@ -21,7 +21,7 @@
 
       <h3 class="text-xl font-semibold mb-2 line-clamp-2">
         <NuxtLink
-          :to="review._path"
+          :to="review.path"
           class="hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
         >
           {{ review.title }}
@@ -44,7 +44,7 @@
         </div>
 
         <NuxtLink
-          :to="review._path"
+          :to="review.path"
           class="text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-medium text-sm"
         >
           Read Review →
