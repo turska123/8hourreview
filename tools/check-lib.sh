@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
-# Shared helpers for tools/check.sh (dev-wiki/standards §3). Copied into every repo by standards/templates/apply.sh:
-# edit the dev-wiki copy and re-apply, don't edit a repo's copy by hand.
+# Shared helpers for tools/check.sh (standard §3). Copied into every repo by house-rules templates/apply.sh:
+# edit the house-rules copy and re-apply, don't edit a repo's copy by hand.
 #
 # A repo's tools/check.sh sources this file, calls `step` once per check, then `finish`.
 #   step "<label>" [--deny '<regex>'] -- <command...>
 #     Fails when the command exits non-zero, or when its output matches the --deny regex (for tools that print
 #     warnings but still exit 0, e.g. a build). Output is shown only when the step fails.
 #   finish
-#     Writes the optional JUnit report, the pre-push stamp, and prints ALL CLEAN or exits 1.
+#     Runs the "standard files" step (the shared files must match .standard.lock, dev-wiki#61), writes the optional
+#     JUnit report and the pre-push stamp, and prints ALL CLEAN or exits 1.
 # Env: CHECK_JUNIT=<file> writes a JUnit report (CI uses it). Relative paths are from the repo root.
 
 set -uo pipefail
-cd "$(dirname "${BASH_SOURCE[0]}")/.."
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 1
 # Plain output: colour codes make failure details and JUnit reports unreadable.
 export NO_COLOR=1 FORCE_COLOR=0
 
@@ -78,6 +79,7 @@ step() {
   if [[ $code -ne 0 || -n "$bad" ]]; then
     echo "FAIL  $label (exit $code)"
     # Show the matched warning lines if that's why it failed, else the tail of the output.
+    # shellcheck disable=SC2001  # indents every line of a multi-line string, which ${var//} can't do
     if [[ -n "$bad" ]]; then sed 's/^/        /' <<< "$bad" | head -40; else tail -40 <<< "$log" | sed 's/^/        /'; fi
     _record "$label" "exit $code"$'\n'"${bad:-$(tail -40 <<< "$log")}"
     _check_failures=$((_check_failures + 1))
@@ -98,7 +100,37 @@ step_secrets() {
   step "secrets (gitleaks, unstaged)" -- gitleaks git --pre-commit --redact --no-banner .
 }
 
+# Standard files (dev-wiki#61): the shared files (this one too) are copies from house-rules and only change by
+# re-applying it, which rewrites .standard.lock. A hand edit, or a file missing, fails here and is named. So does a
+# hand-edited lock: it must list exactly the shared files below (the same list as apply.sh's SHARED, from the same
+# house-rules version as this file). The version line is only shown: a lock from an older house-rules passes as long
+# as its files match it.
+_STANDARD_SHARED=(tools/check-lib.sh tools/wasm-fallback.sh .claude/hooks/guard.py .githooks/pre-push)
+_standard_files() {
+  local version listed missing extra f bad=0
+  if [[ ! -f .standard.lock ]]; then
+    echo "no .standard.lock: re-apply house-rules (<house-rules>/templates/apply.sh <this repo> <stack> <tier>)"
+    return 1
+  fi
+  version="$(sed -n '1s/^# house-rules \([^ ]*\).*/\1/p' .standard.lock)"
+  listed="$(grep -v '^#' .standard.lock | sed -n 's/^[0-9a-f]\{64\}  //p' | sort)"
+  missing="$(comm -23 <(printf '%s\n' "${_STANDARD_SHARED[@]}" | sort) <(echo "$listed"))"
+  extra="$(comm -13 <(printf '%s\n' "${_STANDARD_SHARED[@]}" | sort) <(echo "$listed"))"
+  while IFS= read -r f; do
+    [[ -n "$f" ]] && { echo "not in .standard.lock: $f"; bad=1; }
+  done <<< "$missing"
+  while IFS= read -r f; do
+    [[ -n "$f" ]] && { echo "not a shared file, but in .standard.lock: $f"; bad=1; }
+  done <<< "$extra"
+  grep -v '^#' .standard.lock | sha256sum --check --quiet --strict - 2>&1 || bad=1
+  [[ $bad -eq 0 ]] && return 0
+  echo "the shared files differ from house-rules ${version:-?}: edit them there and re-apply (templates/apply.sh)"
+  return 1
+}
+
 finish() {
+  # A fixed name: CI keeps test history by it, so it doesn't change with the version.
+  step "standard files" -- _standard_files
   if [[ -n "$_CHECK_JUNIT_FILE" ]]; then
     {
       echo '<?xml version="1.0" encoding="UTF-8"?>'

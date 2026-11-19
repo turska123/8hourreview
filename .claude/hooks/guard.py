@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""PreToolUse guard for Bash commands (dev-wiki/standards §4). Shared copy: edit it in dev-wiki and re-apply.
+"""PreToolUse guard for Bash, Edit, Write and NotebookEdit (standard §4). Shared copy: edit it in house-rules
+and re-apply.
 
 Blocks, with a reason Claude sees:
   - merging, approving or reviewing an MR/PR (glab mr merge/approve, gh pr merge,
@@ -10,7 +11,13 @@ Blocks, with a reason Claude sees:
   - reading tokens (glab auth token, tea login helper get, glab/gh/tea config files, the keyring),
   - running Proton Pass (pass-cli, setup/secrets.sh): only Akim does that (dev-wiki#38),
   - pushing straight to main in app and shared repos, and pushing code (not content) to main in site repos
-    (.claude/guard.json).
+    (.claude/guard.json); force pushes to main (--force or a + refspec) in every tier,
+  - writing .standard.lock by hand (Edit/Write or a shell write): only templates/apply.sh writes it,
+  - whatever the repo adds in guard.json's extra_rules: {"command": regex, "reason": ...} refuses a matching
+    Bash command, {"path": regex, "reason": ...} refuses Edit/Write/NotebookEdit on a matching repo-relative
+    path.
+    A broken extra_rules refuses every call (fails closed), and so does any crash of the guard itself.
+    It stops mistakes, not intent: `bash -c`, interpreters and find -delete aren't parsed.
 
 Exit code 2 = block (stderr goes to Claude). Exit 0 = allow. These checks stop mistakes; they are not
 security (curl to the API isn't checked): the forge's own settings are the real lock.
@@ -56,8 +63,10 @@ API_VALUE_FLAGS = {"-f", "-F", "--field", "--raw-field", "-H", "--header", "--in
 # Proton Pass holds the tokens (dev-wiki#38). Only Akim runs pass-cli, or setup/secrets.sh which calls it.
 PROTON_PASS_PROGRAMS = {"pass-cli", "secrets.sh"}
 PROTON_PASS_SUBSHELL = re.compile(r"\$\(\s*(\S*/)?pass-cli\b")
+# S105: a message about Proton Pass, not a password (ruff matches the "PASS" in the name).
 PROTON_PASS_REASON = (
-    "Proton Pass holds the tokens: only Akim runs pass-cli and setup/secrets.sh. Ask Akim to run it."
+    "Proton Pass holds the tokens: only Akim runs pass-cli and setup/secrets.sh. "  # noqa: S105
+    "Ask Akim to run it."
 )
 COMMAND_WRAPPERS = {"sudo", "env", "exec", "command", "nohup", "time"}
 SHELLS = {"bash", "sh", "zsh"}
@@ -77,7 +86,7 @@ TEA_ALIASES = {
 TEA_ENTITIES = {alias: kind for kind, aliases in TEA_ALIASES.items() for alias in aliases}
 TEA_BLOCKED = {
     "pulls": (
-        {"merge", "m", "approve", "lgtm", "a", "review"},
+        {"merge", "m", "approve", "lgtm", "a", "review", "reject"},
         "Claude never merges, approves or reviews PRs. Tell Akim the PR is ready instead "
         "(a review goes in a comment).",
     ),
@@ -108,6 +117,27 @@ TEA_API_VALUE_FLAGS = {
 }
 
 
+# The lock that says which house-rules version the shared files came from. Only templates/apply.sh writes it.
+LOCK_FILE = ".standard.lock"
+LOCK_REASON = (
+    f"{LOCK_FILE} is written only by templates/apply.sh (re-apply house-rules), never by hand: "
+    "the gate checks its hashes against the shared files."
+)
+FILE_TOOLS = {
+    "Edit": "file_path",
+    "MultiEdit": "file_path",
+    "Write": "file_path",
+    "NotebookEdit": "notebook_path",
+}
+# Shell programs that write or remove every file they name, and those that write only their last argument.
+LOCK_WRITE_ANY = {"tee", "truncate", "rm", "unlink", "shred"}
+LOCK_WRITE_LAST = {"cp", "ln", "install", "rsync"}
+# > >> &> &>> >| and n>, with an optional quote around the target; 2>&1 has no target (& starts it).
+REDIRECT = re.compile(r">>?\|?\s*(['\"]?)([^\s;&|<>'\"]+)\1")
+# perl's options that take a value glued on (-Mstrict, -Ilib): an "i" there isn't -i. sed has none such.
+PERL_VALUE_OPTIONS = ("-M", "-m", "-I", "-e", "-E", "-x")
+
+
 def block(reason: str) -> None:
     print(f"Blocked by .claude/hooks/guard.py: {reason}", file=sys.stderr)
     sys.exit(2)
@@ -123,14 +153,96 @@ def git(cwd: str, *args: str) -> str:
     ).stdout.strip()
 
 
+def repo_root(cwd: str) -> str:
+    return git(cwd, "rev-parse", "--show-toplevel") or cwd
+
+
 def load_config(cwd: str) -> dict[str, Any]:
-    root = git(cwd, "rev-parse", "--show-toplevel") or cwd
+    root = repo_root(cwd)
     try:
         with open(os.path.join(root, ".claude", "guard.json")) as f:
-            config: dict[str, Any] = json.load(f)
-            return config
+            config = json.load(f)
     except (OSError, ValueError):
         return {"tier": "app"}  # no config: the strictest tier
+    if not isinstance(config, dict):
+        block('.claude/guard.json must be a JSON object like {"tier": "app"}. Fix it first.')
+    return config
+
+
+def extra_rules(config: dict[str, Any]) -> list[tuple[str, re.Pattern[str], str]]:
+    """guard.json's extra_rules as (kind, regex, reason).
+
+    Anything malformed blocks: a crash would let the call through.
+    """
+    rules = config.get("extra_rules", [])
+    broken = "Fix extra_rules in .claude/guard.json: "
+    if not isinstance(rules, list):
+        block(broken + "it must be a list of {command|path, reason} entries.")
+    compiled = []
+    for entry in rules:
+        if not isinstance(entry, dict):
+            block(broken + f"{entry!r} is not a {{command|path, reason}} object.")
+        kinds = [k for k in ("command", "path") if k in entry]
+        if len(kinds) != 1 or not isinstance(entry[kinds[0]], str):
+            block(broken + f"{entry!r} needs exactly one of command or path, as a regex string.")
+        reason = entry.get("reason")
+        if not isinstance(reason, str) or not reason.strip():
+            block(broken + f"{entry!r} has no reason.")
+        try:
+            compiled.append((kinds[0], re.compile(entry[kinds[0]]), reason))
+        except (re.error, OverflowError, RecursionError) as e:
+            block(broken + f"{entry[kinds[0]]!r} is not a valid regex ({e}).")
+    return compiled
+
+
+def check_file_tool(path: str, cwd: str, rules: list[tuple[str, re.Pattern[str], str]]) -> None:
+    """Edit/Write/NotebookEdit: the lock is never edited by hand; the repo's path rules apply."""
+    root = repo_root(cwd)
+    rel = os.path.relpath(os.path.normpath(os.path.join(cwd, os.path.expanduser(path))), root)
+    if is_lock(rel):  # any repo's lock, worktrees and other clones included
+        block(LOCK_REASON)
+    for kind, regex, reason in rules:
+        if kind == "path" and regex.search(rel):
+            block(f"{reason} (extra_rules in .claude/guard.json, path {rel})")
+
+
+def is_lock(word: str) -> bool:
+    return os.path.basename(word.rstrip("/")) == LOCK_FILE
+
+
+def check_lock_write(part: str, words: list[str]) -> None:
+    """Shell writes to .standard.lock: redirects, tee, sed -i, cp/mv/ln onto it, rm/truncate."""
+    if any(is_lock(m.group(2)) for m in REDIRECT.finditer(part)):
+        block(LOCK_REASON)
+    while words and words[0] in COMMAND_WRAPPERS:
+        words = words[1:]
+    if not words:
+        return
+    prog, args = os.path.basename(words[0]), words[1:]
+    operands = [a for a in args if not a.startswith("-")]
+    if prog in LOCK_WRITE_ANY or prog == "mv":
+        hit = any(is_lock(a) for a in operands)
+    elif prog in LOCK_WRITE_LAST:
+        hit = len(operands) >= 2 and is_lock(operands[-1])
+    elif prog in ("sed", "perl"):
+        # -i, -i.bak, --in-place, and -i inside short-option bundles (sed -ni, perl -pi).
+        in_place = any(
+            a.startswith("--in-place")
+            or (
+                a[:1] == "-"
+                and a[1:2] != "-"
+                and not (prog == "perl" and a.startswith(PERL_VALUE_OPTIONS))
+                and "i" in a
+            )
+            for a in args
+        )
+        hit = in_place and any(is_lock(a) for a in operands)
+    elif prog == "dd":
+        hit = any(a.startswith("of=") and is_lock(a[3:]) for a in args)
+    else:
+        hit = False
+    if hit:
+        block(LOCK_REASON)
 
 
 def check_proton_pass(words: list[str]) -> None:
@@ -246,26 +358,28 @@ def check_git_hooks_bypass(words: list[str]) -> None:
         block("Don't skip the git hooks. Fix what the check reports instead.")
 
 
-def push_targets_main(args: list[str], cwd: str, main: str) -> tuple[bool, str]:
+def push_targets_main(args: list[str], cwd: str, main: str) -> tuple[bool, str, bool]:
+    """(pushes to main, the ref pushed there, forced by a + refspec)."""
     positional = [a for a in args if not a.startswith("-")]
     refspecs = positional[1:]  # positional[0] is the remote
     if not refspecs:
-        return git(cwd, "rev-parse", "--abbrev-ref", "HEAD") == main, "HEAD"
+        return git(cwd, "rev-parse", "--abbrev-ref", "HEAD") == main, "HEAD", False
     for spec in refspecs:
-        src, _, dst = spec.lstrip("+").partition(":")
+        src, _, dst = spec.removeprefix("+").partition(":")
         if (dst or src).removeprefix("refs/heads/") == main:
-            return True, src or "HEAD"
-    return False, ""
+            return True, src or "HEAD", spec.startswith("+") or not src  # :main deletes main
+    return False, "", False
 
 
 def check_push(segment: list[str], cwd: str) -> None:
     config = load_config(cwd)
     main = config.get("main_branch", "main")
-    to_main, ref = push_targets_main(segment[2:], cwd, main)
+    to_main, ref, forced_refspec = push_targets_main(segment[2:], cwd, main)
     if not to_main:
         return
-    if any(a in ("-f", "--force", "--force-with-lease") or a.startswith("--force") for a in segment):
-        block(f"Force-pushing {main} is never allowed.")
+    forced = any(a in ("-f", "--force", "--force-with-lease") or a.startswith("--force") for a in segment)
+    if forced or forced_refspec:
+        block(f"Force-pushing or deleting {main} is never allowed.")
     if config.get("tier") not in TIERS_WITH_MR_FOR_CODE:
         return
     if config.get("tier") != "site":
@@ -285,9 +399,29 @@ def check_push(segment: list[str], cwd: str) -> None:
 
 
 def main() -> None:
-    data = json.load(sys.stdin)
-    command = data.get("tool_input", {}).get("command", "")
+    try:
+        run(json.load(sys.stdin))
+    except SystemExit:
+        raise
+    # Any crash would exit 1, which lets the call through: refuse instead.
+    except Exception as e:
+        block(f"the guard itself failed ({type(e).__name__}: {e}); fix the cause before going on.")
+
+
+def run(data: dict[str, Any]) -> None:
+    tool = data.get("tool_name") or "Bash"  # older payloads carry no tool_name: the guard was Bash-only
+    tool_input = data.get("tool_input", {})
     cwd = data.get("cwd") or "."
+    if tool != "Bash" and tool not in FILE_TOOLS:
+        return
+    rules = extra_rules(load_config(cwd))
+    if tool in FILE_TOOLS:
+        check_file_tool(tool_input.get(FILE_TOOLS[tool]) or "", cwd, rules)
+        return
+    command = tool_input.get("command", "")
+    for kind, regex, reason in rules:
+        if kind == "command" and regex.search(command):
+            block(f"{reason} (extra_rules in .claude/guard.json)")
     if TOKEN_PATHS.search(command) or re.search(r"\bsecret-tool\s+lookup\b", command):
         block("Never read or print tokens.")
     if PROTON_PASS_SUBSHELL.search(command):
@@ -300,6 +434,7 @@ def main() -> None:
         while words and "=" in words[0]:  # skip VAR=value prefixes
             words = words[1:]
         check_proton_pass(words)
+        check_lock_write(part, words)
         if len(words) < 2:
             continue
         if words[0] == "glab":
