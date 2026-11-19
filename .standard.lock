@@ -1,0 +1,5 @@
+# house-rules v1.1.0-54-g2ee5d54 (written by templates/apply.sh: re-apply, don't edit)
+5305dd70699290b023a9dae75365446c1bf73b15cb85d54398b6c4912c72c41e  tools/check-lib.sh
+3277107a7f646ce37b4366ef4518fa51b0cdf9758785b75845df1c8c811d9037  tools/wasm-fallback.sh
+610d68d1b8f133328bd7bcd634d53c5cec8fd5435e18a29201f26e2ca7d1e4c0  .claude/hooks/guard.py
+0c8c410754faead3ef91ae9b8f02471171c9ae57b498453ddd384c047d0b33be  .githooks/pre-push

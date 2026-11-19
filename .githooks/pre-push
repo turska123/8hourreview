@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Clean gate before every push (dev-wiki/standards §4). Turn on once per clone:
+# Clean gate before every push (standard §4). Turn on once per clone:
 #   git config core.hooksPath .githooks
 # Passes at once if tools/check.sh already printed ALL CLEAN on the exact commit being pushed (.git/check-stamp).
 # Otherwise runs the check now. A person can skip it in an emergency with --no-verify; Claude can't (guard hook).
@@ -50,4 +50,13 @@ if [[ -n "$(git status --porcelain)" ]]; then
 fi
 
 echo "pre-push: running tools/check.sh ..."
+# git exports GIT_DIR (from a worktree also GIT_PREFIX ...) to hooks. The check runs tests that make throwaway
+# repos: with these set, their git would write into this repo (house-rules #20). The check finds the repo from
+# its own folder instead.
+unset GIT_ALTERNATE_OBJECT_DIRECTORIES GIT_CONFIG GIT_CONFIG_PARAMETERS GIT_CONFIG_COUNT GIT_OBJECT_DIRECTORY \
+  GIT_DIR GIT_WORK_TREE GIT_IMPLICIT_WORK_TREE GIT_GRAFT_FILE GIT_INDEX_FILE GIT_NO_REPLACE_OBJECTS \
+  GIT_REPLACE_REF_BASE GIT_PREFIX GIT_SHALLOW_FILE GIT_COMMON_DIR GIT_CEILING_DIRECTORIES GIT_NAMESPACE \
+  GIT_DISCOVERY_ACROSS_FILESYSTEM
+for var in $(compgen -e | grep -E '^GIT_CONFIG_(KEY|VALUE)_[0-9]+$'); do unset "$var"; done
+cd "$root" || exit 1
 "$root/tools/check.sh" || { echo "pre-push: check failed, push refused. Fix the cause and push again."; exit 1; }

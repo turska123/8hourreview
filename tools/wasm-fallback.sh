@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Swaps native Node packages that crash on this CPU for their WebAssembly builds (dev-wiki#32). Shared file:
-# copied into every repo by standards/templates/apply.sh; edit the dev-wiki copy and re-apply.
+# copied into every repo by house-rules templates/apply.sh; edit the house-rules copy and re-apply.
 #
 # Why: the NAS CPU (i7-3770K) has no AVX2. Some prebuilt native packages (Astro 7's compiler binding, Vite's
 # rolldown binding) are built for newer CPUs and die with "Illegal instruction" (exit 132) as soon as they load.
@@ -20,7 +20,7 @@
 #      WASM_FALLBACK_NPM=<npm command> (tests)
 set -uo pipefail
 self="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
-cd "$(dirname "$self")/.."
+cd "$(dirname "$self")/.." || exit 1
 
 mode="${WASM_FALLBACK:-auto}"
 [[ "$mode" == "never" || ! -d node_modules ]] && exit 0
@@ -42,6 +42,7 @@ deps=()      # "<name>@<range>" the twins need and node_modules/ doesn't have
 # missing_deps <dir> <package.json>: prints name@range for each dependency not found walking up from <dir>.
 # Checks only that the dependency exists, not its range: good enough while twins need the same napi-rs runtime.
 missing_deps() {
+  # shellcheck disable=SC2016  # a JavaScript program: its $ and quotes are Node's, not the shell's
   node -e '
     const fs = require("fs"), path = require("path");
     const [dir, file] = process.argv.slice(1);
