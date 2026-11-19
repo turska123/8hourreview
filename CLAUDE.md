@@ -4,33 +4,27 @@
 (`nuxt generate`) with @nuxt/content 3 Markdown reviews, Tailwind, dark mode and an `/admin` page that builds a review's
 Markdown in the browser. Run / check / publish: [README.md](README.md).
 
-**Way of working:** the shared standard (`~/source/Repos/dev-wiki/standards/README.md`), tier **site**: content
-(`content/`, `public/`, `docs/`) may go straight to `main` once the check passes; code (pages, layouts, components,
-`assets/css/`, config, tests, tooling) goes through a draft pull request (`WIP:`) that Akim merges.
-
-**Where it lives:** Akim's private forge (Forgejo; moved from GitLab 2026-11-16, dev-wiki#15). It mirrors forge →
-GitLab → GitHub → Netlify. Backlog = forge issues (`tea issues`, run in the repo). Decisions = forge wiki page
-"Decision log" (`tea wiki view "Decision log"`); don't re-propose what's listed there. The GitLab and GitHub copies
-are mirrors: never push to them. This file is public on GitHub, so no forge address in it.
+Tier **site**: content is `content/`, `public/` and `docs/`; everything else is code. This file is public on
+GitHub (a mirror), so no forge address in it.
 
 ## Rules (agreed with Akim)
 
 - **Every push to `main` is live.** The forge push-mirrors to GitLab, which mirrors `main` on to the **public**
   GitHub repo `turska123/8hourreview`, and Netlify rebuilds www.8hourreview.com from it. So: the gate before every
   push (the hook does it), nothing secret or personal in any commit, and a content push to main is a publish.
-- **Don't touch Netlify, the GitLab or GitHub mirrors or DNS (GoDaddy).** Moving off Netlify is idea #9.
+- **Don't touch Netlify, the GitLab or GitHub mirrors or DNS (GoDaddy).**
 - **The GitLab Pages job is manual-only** (a `publish-*` tag pushed to the forge reaches GitLab through the mirror,
   or Build > Pipelines > Run pipeline on GitLab). Nobody uses that copy yet; don't make it run on pushes again.
 - Third-party requests are allow-listed in `tests/smoke/pages.spec.ts` (`OFFSITE_ALLOWED`); anything new from another
-  site fails the smoke test. Whether the current ones stay is #3. No Google Fonts, ever.
+  site fails the smoke test.
 - Reviews are Markdown in `content/reviews/<slug>.md`; the front matter fields are in README "Writing a review".
-- Exact dependency versions, at least two weeks old (`npm install --before=<date>`). Upgrades only in upkeep.
+- Upgrades only in upkeep (`npm install --before=<date>` picks releases old enough).
 
 ## Checking
 
 - `tools/check.sh` (or `npm run check`): prettier, eslint, `nuxi typecheck`, `nuxt generate` (any WARN line fails),
   Playwright smoke in Firefox, npm audit of shipped deps, gitleaks. Must print `ALL CLEAN`; the pre-push hook runs it.
-- Setup per machine: `npm ci`, `npx playwright install firefox`, `git config core.hooksPath .githooks`.
+  Setup per machine: README.
 - Tests (`tests/smoke/`): `pages.spec.ts` opens every generated page (and the 404) and fails on console
   errors/warnings, failed or off-site requests and broken links; `site.spec.ts` checks share images, the manifest and
   the not-found page; `images.spec.ts` fails on photo metadata in `public/`, `assets/` or the output.
@@ -38,12 +32,9 @@ are mirrors: never push to them. This file is public on GitHub, so no forge addr
   (dev-wiki#55), minimatch and zod (#17). An expired entry fails the check: re-check and remove, or extend with a
   reason and Akim's OK.
 
-## State (2026-11-18)
+## State (2026-11-19)
 
-- Live on Netlify. Adopted the shared standard in #1 (gate, tests, docs, Pages job manual-only).
-- On Nuxt 4 and @nuxt/content 3 since #2. Waiting on Akim: #3 third-party images, #4 licence, #5 `/admin` on the
-  live site, #8 About page name and footer year. Small: #7 type-check the Vue files, #13 admin Score field, #17
-  allow-list re-check before 2027-01-10.
+- Live on Netlify, on the shared standard (#1), Nuxt 4 and @nuxt/content 3 (#2). Open work: forge issues.
 
 ## Where to look
 
